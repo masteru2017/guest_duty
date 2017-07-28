@@ -5,8 +5,8 @@ var bcrypt = require('bcryptjs');
 
 // set up a mongoose model
 var UserSchema = new Schema({
-    name: {
-        type: String,
+    mobile: {
+        type: Number,
         unique: true,
         required: true
     },
@@ -18,8 +18,6 @@ var UserSchema = new Schema({
 
 UserSchema.pre('save', function(next) {
     var user = this;
-    console.log("isModified", this.isModified('password'));
-    console.log("isNew", this.isNew);
     if (this.isModified('password') || this.isNew) {
         bcrypt.genSalt(10, function(err, salt) {
             if (err) {

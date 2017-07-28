@@ -9,7 +9,7 @@ var swaggerDefinition = {
         version: '1.0.0',
         description: 'Demonstrating how to describe a RESTful API with Swagger',
     },
-    host: 'localhost:5000',
+    host: 'http://139.59.80.42:5000',
     basePath: '/',
 };
 
@@ -32,11 +32,12 @@ var http = require('http');
 var passport = require('passport');
 var config = require('./config/database'); // get db config file
 var User = require('./app/models/user'); // get the mongoose model
-var Host = require('./app/models/host');
+var UserData = require('./app/models/user_data');
 var OtpUser = require('./app/models/otp_user');
-var port = 5000;
+var HostMenuSave = require('./app/models/host_menu_save');
+var port = 8521;
 var jwt = require('jwt-simple');
-
+var bcrypt = require('bcryptjs');
 
 // get our request parameters
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -66,6 +67,36 @@ require('./config/passport')(passport);
 
 // bundle our routes
 var apiRoutes = express.Router();
+//
+apiRoutes.post('/hostMenuSave', function(req, res) {
+    if (false /*!req.body.hostId || !req.body.FoodName*/ ) {
+        res.json({ success: false, msg: 'Enter the food details properly' });
+    } else {
+        var newHostMenuSave = new HostMenuSave({
+            hostId: 12345678,
+            MenuDetails: ['chapathi', 'palya', 'kosambari'],
+            FoodName: 'Veg Meals',
+            lat: 123.444,
+            long: 12.55,
+            placeType: 'OFFICE',
+            foodType: ['VEG', 'NON_VEG'],
+            flavorType: ['SWEET', 'SALTY'],
+            noOfPlates: 2,
+            ForWhichTime: ['BREAKFAST', 'LUNCH', 'DINNER'],
+            ForWhichDate: '2017-07-22T09:54:46.000Z'
+
+        });
+        // save the user
+        newHostMenuSave.save(function(err) {
+            if (err) {
+                return res.json({ success: false, msg: 'Not able to save the data' });
+            }
+            res.json({ success: true, msg: 'Menu Saved successfully' });
+        });
+    }
+});
+
+
 
 // create a new user account (POST http://localhost:8080/api/signup)
 /**
@@ -73,8 +104,8 @@ var apiRoutes = express.Router();
  * definition:
  *   GuestDuty_Signup:
  *     properties:
- *       name:
- *         type: string
+ *       mobile:
+ *         type: number
  *       password:
  *         type: string
  *       
@@ -101,11 +132,11 @@ var apiRoutes = express.Router();
  *            This Api will be used to signing up an user
  */
 apiRoutes.post('/signup', function(req, res) {
-    if (!req.body.name || !req.body.password) {
+    if (!req.body.mobile || !req.body.password) {
         res.json({ success: false, msg: 'Please pass name and password.' });
     } else {
         var newUser = new User({
-            name: req.body.name,
+            mobile: req.body.mobile,
             password: req.body.password
         });
         // save the user
@@ -127,8 +158,8 @@ app.use('/api', apiRoutes);
  * definition:
  *   GuestDuty_Authenticate:
  *     properties:
- *       name:
- *         type: string
+ *       mobile:
+ *         type: number
  *       password:
  *         type: string
  *       
@@ -156,7 +187,7 @@ app.use('/api', apiRoutes);
  */
 apiRoutes.post('/authenticate', function(req, res) {
     User.findOne({
-        name: req.body.name
+        mobile: req.body.mobile
     }, function(err, user) {
         if (err) throw err;
 
@@ -181,9 +212,9 @@ apiRoutes.post('/authenticate', function(req, res) {
 /**
  * @swagger
  * definition:
- *   GuestDuty_SaveHostData:
+ *   GuestDuty_SaveUserData:
  *     properties:
- *       hostname:
+ *       name:
  *         type: string
  *       email:
  *         type: string
@@ -195,94 +226,111 @@ apiRoutes.post('/authenticate', function(req, res) {
  *         type: string
  *       mobile:
  *         type: number
- *       
- */
-/**
- * @swagger
- * /api/SaveHostData:
- *   post:
- *     tags:
- *       - SaveHostData
- *     description: Saving the data of the Host
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: GuestDuty_SaveHostData
- *         description: Host data Object
- *         in: body
- *         required: true
- *         schema:
- *           $ref: '#/definitions/GuestDuty_SaveHostData'
- *     responses:
- *       200:
- *         description: 
- *            This Api will be used to save the data of the host
- */
-apiRoutes.post('/SaveHostData', function(req, res) {
-    Host.findOne({
-        hostname: req.body.hostname
-    }, function(err, host) {
-        if (err) throw err;
-
-        if (!host) {
-            var newHost = new Host({
-                hostname: req.body.hostname,
-                email: req.body.email,
-                lat: req.body.lat,
-                long: req.body.long,
-                landmark: req.body.landmark,
-                mobile: req.body.mobile
-            });
-            // save the user
-            newHost.save(function(err) {
-                if (err) {
-                    return res.json({ success: false, msg: 'Username already exists.' });
-                }
-                res.json({ success: true, msg: 'Successful created new user.' });
-            });
-
-        } else {
-            res.send({ success: false, msg: 'host not found' });
-        }
-    });
-});
-
-//Get Host User details
-/**
- * @swagger
- * definition:
- *   GuestDuty_HostUser:
- *     properties:
- *       email:
+ *       profession:
+ *         type: string
+ *       gender:
+ *         type: string
+ *       dob:
+ *         type: string
+ *       address:
+ *         type: string
+ *       userid:
  *         type: string
  *       
  */
 /**
  * @swagger
- * /api/HostUser:
+ * /api/SaveUserData:
  *   post:
  *     tags:
- *       - HostUser
- *     description: Getting particular host data
+ *       - SaveUserData
+ *     description: Saving the data of the User
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: GuestDuty_HostUser
- *         description: Host data
+ *       - name: GuestDuty_SaveUserData
+ *         description: User data Object
  *         in: body
  *         required: true
  *         schema:
- *           $ref: '#/definitions/GuestDuty_HostUser'
+ *           $ref: '#/definitions/GuestDuty_SaveUserData'
  *     responses:
  *       200:
  *         description: 
- *            This Api will be used to get the data of the host
+ *            This Api will be used to save the data of the user
  */
-apiRoutes.post('/HostUser', function(req, res) {
+apiRoutes.post('/SaveUserData', function(req, res) {
+    UserData.findOne({
+        mobile: req.body.mobile
+    }, function(err, user) {
+        if (err) throw "something is wrong";
 
-    if (req.body.email) {
+        if (!user) {
+            var newUserData = new UserData({
+                name: req.body.name,
+                mobile: req.body.mobile,
+                email: req.body.email,
+                lat: req.body.lat,
+                long: req.body.long,
+                landmark: req.body.landmark,
+                profession: req.body.profession,
+                gender: req.body.gender,
+                address: req.body.address,
+                dob: req.body.dob,
+                userid: req.body.userid
+
+
+            });
+            // save the user
+            newUserData.save(function(err) {
+                if (err) {
+                    return res.json({ success: false, msg: 'Something went wrong' });
+                }
+                res.json({ success: true, msg: 'Successful created new user.' });
+            });
+
+        } else {
+            res.send({ success: false, msg: 'User already exists' });
+        }
+    });
+});
+
+//Get User details
+/**
+ * @swagger
+ * definition:
+ *   GuestDuty_userDetails:
+ *     properties:
+ *       mobile:
+ *         type: number
+ *       
+ */
+/**
+ * @swagger
+ * /api/userDetails:
+ *   post:
+ *     tags:
+ *       - User
+ *     description: Getting particular user data
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: GuestDuty_UserDetails
+ *         description: user data
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/GuestDuty_userDetails'
+ *     responses:
+ *       200:
+ *         description: 
+ *            This Api will be used to get the data of the user
+ */
+apiRoutes.post('/userDetail', function(req, res) {
+
+    if (req.body.mobile) {
         // console.log(req.params);
-        Host.findOne({ email: req.body.email }, function(err, docs) {
+        UserData.findOne({ mobile: req.body.mobile }, function(err, docs) {
             if (err) {
                 return res.json({ success: false, msg: 'Check the email id' })
             } else {
@@ -294,39 +342,39 @@ apiRoutes.post('/HostUser', function(req, res) {
 
 });
 
-//Get all the host details
+//Get all the user details
 /**
  * @swagger
  * definition:
- *   GuestDuty_AllHosts:
+ *   GuestDuty_allUsers:
  *     
  *  
  *       
  */
 /**
  * @swagger
- * /api/AllHosts:
+ * /api/allUsers:
  *   get:
  *     tags:
- *       - AllHosts
- *     description: Getting particular host data
+ *       - allUsers
+ *     description: Getting particular user data
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: GuestDuty_AllHosts
- *         description: Host data
+ *       - name: GuestDuty_allUsers
+ *         description: users data
  *         in: body
  *         required: true
  *         schema:
- *           $ref: '#/definitions/GuestDuty_AllHosts'
+ *           $ref: '#/definitions/GuestDuty_allUsers'
  *     responses:
  *       200:
  *         description: 
- *            This Api will be used to get the data of all the hosts
+ *            This Api will be used to get the data of all the users
  */
-apiRoutes.get('/AllHosts', function(req, res) {
+apiRoutes.get('/allUsers', function(req, res) {
 
-    Host.find({}, function(err, docs) {
+    UserData.find({}, function(err, docs) {
         if (err) {
             return res.json({ success: false, msg: 'Check the email id' })
         } else {
@@ -342,8 +390,8 @@ apiRoutes.get('/AllHosts', function(req, res) {
  * definition:
  *   GuestDuty_userResetPassword:
  *     properties:
- *         name:
- *           type: string
+ *         mobile:
+ *           type: number
  *         oldPassword:
  *           type: string
  *         newPassword:
@@ -373,11 +421,11 @@ apiRoutes.get('/AllHosts', function(req, res) {
  *            This Api will be used to Reset the password of the user
  */
 apiRoutes.post('/userResetPassword', function(req, res) {
-    if (!req.body.name || !req.body.oldPassword || !req.body.newPassword) {
+    if (!req.body.mobile || !req.body.oldPassword || !req.body.newPassword) {
         res.json({ success: false, msg: 'Missing some fields I guess!!' });
     } else {
         User.findOne({
-            name: req.body.name
+            mobile: req.body.mobile
         }, function(err, user) {
             if (err) throw err;
 
@@ -387,26 +435,30 @@ apiRoutes.post('/userResetPassword', function(req, res) {
                 // check if password matches
                 user.comparePassword(req.body.oldPassword, function(err, isMatch) {
                     if (isMatch && !err) {
-                        User.findOneAndRemove({ name: req.body.name }, function(err) {
+                        bcrypt.genSalt(10, function(err, salt) {
                             if (err) {
-                                return res.json({ success: false, msg: err });
+                                return next(err);
                             }
+                            bcrypt.hash(req.body.newPassword, salt, function(err, hash) {
+                                if (err) {
+                                    return next(err);
+                                }
+                                req.body.newPassword = hash;
+                                User.update({ mobile: req.body.mobile }, {
+                                    password: req.body.newPassword
+                                }, function(err, resp) {
+                                    if (err) {
+                                        res.send({ success: false, msg: 'something went wrong' });
+                                    }
+                                    if (resp) {
+                                        res.send({ success: true, msg: "succesfully updated the password" });
+                                    }
+                                });
+                            });
                         });
-                        // if user is found and password is right create a token
-                        var existingUser = new User({
-                            name: req.body.name,
-                            password: req.body.newPassword
-                        });
-                        // save the user
-                        existingUser.save(function(err) {
-                            if (err) {
-                                return res.json({ success: false, msg: err });
-                            }
 
-                            res.json({ success: true, msg: 'Password Changed successfully' });
-                        });
-                        // return the information including token as JSON
-                        // res.json({ success: true, token: 'JWT ' + token });
+
+
                     } else {
                         res.send({ success: false, msg: 'Something really went wrong' });
                     }
@@ -453,18 +505,13 @@ apiRoutes.post('/SendOtp', function(req, res) {
     if (!req.body.mobile) {
         res.json({ success: false, msg: 'Missing some fields I guess!!' });
     } else {
-        Host.find({ mobile: req.body.mobile }, function(err, user) {
+        UserData.find({ mobile: req.body.mobile }, function(err, user) {
             if (err) throw err;
 
             if (!user) {
                 res.send({ success: false, msg: 'could not find the user' });
             } else {
-                //OTP API logic should go here, but for now sending predefined otp
-                var myOtp = Math.floor(Math.random() * 89999 + 10000);
-                var url = 'http://199.189.250.157/smsclient/api.php?username=ankur1234&password=ankur_47463&source=AASHI&dmobile=' + req.body.mobile + '&message=' + myOtp;
-                var req = http.request(url, function(res) {
-                    console.log("done");
-                });
+                var myOtp = 1234;
                 var SendUserOtp = new OtpUser({
                     otp: myOtp,
                     mobile: req.body.mobile
@@ -490,8 +537,6 @@ apiRoutes.post('/SendOtp', function(req, res) {
  * definition:
  *   GuestDuty_OtpVerify:
  *     properties:
- *         id:
- *           type: string
  *         otp:
  *           type: number
  *         mobile:
@@ -522,10 +567,10 @@ apiRoutes.post('/SendOtp', function(req, res) {
  */
 apiRoutes.post('/OtpVerify', function(req, res) {
 
-    if (!req.body.id || !req.body.otp || !req.body.mobile) {
+    if (!req.body.otp || !req.body.mobile) {
         res.json({ success: false, msg: 'Missing some fields I guess!!' });
     } else {
-        User.find({ _id: req.body.id }, function(err, user) {
+        OtpUser.find({ mobile: req.body.mobile }, function(err, user) {
             if (err) throw err;
 
             if (!user) {
@@ -535,7 +580,7 @@ apiRoutes.post('/OtpVerify', function(req, res) {
                     if (err) {
                         return res.json({ success: false, msg: "data not found" });
                     } else {
-                        Host.find({ mobile: req.body.mobile }, function(err, user) {
+                        UserData.find({ mobile: req.body.mobile }, function(err, user) {
                             if (err) {
                                 return res.json({ success: false, msg: "data not found" });
                             } else {
@@ -556,17 +601,16 @@ apiRoutes.post('/OtpVerify', function(req, res) {
  * definition:
  *   GuestDuty_forgotPassword:
  *     properties:
- *         name:
- *           type: string
+ *         mobile:
+ *           type: number
  *         newPassword:
  *           type: string
- *         
- *    
- *       
+ *         confirmPassword:
+ *           type: string
  */
 /**
  * @swagger
- * /api/OtpVerify:
+ * /api/forgotPassword:
  *   post:
  *     tags:
  *       - ForgotPassword
@@ -586,35 +630,41 @@ apiRoutes.post('/OtpVerify', function(req, res) {
  *            This Api will be used to Set the password when forgot
  */
 apiRoutes.post('/forgotPassword', function(req, res) {
-    if (!req.body.name || !req.body.newPassword) {
+    if (!req.body.mobile || !req.body.newPassword || !req.body.confirmPassword) {
         res.json({ success: false, msg: 'Missing some fields I guess!!' });
     } else {
         User.findOne({
-            name: req.body.name
+            mobile: req.body.mobile
         }, function(err, user) {
             if (err) throw err;
 
             if (!user) {
                 res.send({ success: false, msg: 'could not find the user' });
+            } else if (req.body.newPassword !== req.body.confirmPassword) {
+                return res.json({ success: false, msg: 'Password is not matching' });
             } else {
-                User.findOneAndRemove({ name: req.body.name }, function(err) {
+                bcrypt.genSalt(10, function(err, salt) {
                     if (err) {
-                        return res.json({ success: false, msg: err });
+                        return next(err);
                     }
+                    bcrypt.hash(req.body.newPassword, salt, function(err, hash) {
+                        if (err) {
+                            return next(err);
+                        }
+                        req.body.newPassword = hash;
+                        User.update({ mobile: req.body.mobile }, {
+                            password: req.body.newPassword
+                        }, function(err, resp) {
+                            if (err) {
+                                res.send({ success: false, msg: 'something went wrong' });
+                            }
+                            if (resp) {
+                                res.send({ success: true, msg: "succesfully changed the password" });
+                            }
+                        });
+                    });
                 });
-                // if user is found and password is right create a token
-                var forgotPasswordUser = new User({
-                    name: req.body.name,
-                    password: req.body.newPassword
-                });
-                // save the user
-                forgotPasswordUser.save(function(err) {
-                    if (err) {
-                        return res.json({ success: false, msg: err });
-                    }
 
-                    res.json({ success: true, msg: 'Password Changed successfully' });
-                });
             }
         });
     }
