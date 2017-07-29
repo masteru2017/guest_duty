@@ -5,15 +5,15 @@ var Schema = mongoose.Schema;
 var UserDataSchema = new mongoose.Schema({
     name: String,
     email: String,
-    lat: Number,
-    long: Number,
+    latitude: Number,
+    longitude: Number,
     landmark: String,
-    mobile: Number,
+    mobile: String,
     profession: String,
     gender: String,
     address: String,
     dob: String,
-    userid: String
+    userID: String
 }, { timestamps: { type: Date, default: Date.now } });
 
 

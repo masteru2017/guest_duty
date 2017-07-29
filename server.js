@@ -9,7 +9,7 @@ var swaggerDefinition = {
         version: '1.0.0',
         description: 'Demonstrating how to describe a RESTful API with Swagger',
     },
-    host: 'http://139.59.80.42:5000',
+    host: 'http://localhost:8521',
     basePath: '/',
 };
 
@@ -105,7 +105,7 @@ apiRoutes.post('/hostMenuSave', function(req, res) {
  *   GuestDuty_Signup:
  *     properties:
  *       mobile:
- *         type: number
+ *         type: string
  *       password:
  *         type: string
  *       
@@ -133,7 +133,7 @@ apiRoutes.post('/hostMenuSave', function(req, res) {
  */
 apiRoutes.post('/signup', function(req, res) {
     if (!req.body.mobile || !req.body.password) {
-        res.json({ success: false, msg: 'Please pass name and password.' });
+        res.json({ success: false, msg: 'Please enter Mobile number and password.' });
     } else {
         var newUser = new User({
             mobile: req.body.mobile,
@@ -141,10 +141,23 @@ apiRoutes.post('/signup', function(req, res) {
         });
         // save the user
         newUser.save(function(err) {
+            console.log("inside save function");
             if (err) {
                 return res.json({ success: false, msg: 'Username already exists.' });
+            } else {
+                console.log("findnig the user logic");
+                User.findOne({
+                    mobile: req.body.mobile
+                }, function(err, user_data) {
+                    if (err) {
+                        return res.json({ success: false, msg: "Could not find the user" });
+                    } else {
+                        return res.json({ success: true, msg: user_data });
+                    }
+
+
+                });
             }
-            res.json({ success: true, msg: 'Successful created new user.' });
         });
     }
 });
@@ -200,7 +213,7 @@ apiRoutes.post('/authenticate', function(req, res) {
                     // if user is found and password is right create a token
                     var token = jwt.encode(user, config.secret);
                     // return the information including token as JSON
-                    res.json({ success: true, token: 'JWT ' + token });
+                    res.json({ success: true, token: 'JWT ' + token, msg: user });
                 } else {
                     res.send({ success: false, msg: 'Authentication failed. Wrong password.' });
                 }

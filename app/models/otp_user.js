@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 
 var OtpSchema = new mongoose.Schema({
     otp: Number,
-    mobile: Number
+    mobile: String
 }, { timestamps: { type: Date, default: Date.now } });
 
 
