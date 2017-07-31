@@ -3,11 +3,11 @@ var Schema = mongoose.Schema;
 
 
 var HostMenuSaveSchema = new mongoose.Schema({
-    hostId: String,
+    userID: String,
     MenuDetails: [String],
     FoodName: String,
-    lat: Number,
-    long: Number,
+    latitude: Number,
+    longitude: Number,
     placeType: String,
     foodType: [String],
     flavorType: [String],

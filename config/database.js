@@ -1,4 +1,4 @@
 module.exports = {
     'secret': 'devdacticIsAwesome',
-    'database': 'mongodb://localhost/guest_Duty'
+    'database': 'mongodb://localhost:27017/guest_Duty'
 };
