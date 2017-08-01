@@ -35,12 +35,12 @@ var User = require('./app/models/user'); // get the mongoose model
 var UserData = require('./app/models/user_data');
 var OtpUser = require('./app/models/otp_user');
 var HostMenuSave = require('./app/models/host_menu_save');
-var port = 5000;
+var port = 8000;
 var jwt = require('jwt-simple');
 var bcrypt = require('bcryptjs');
 
 // get our request parameters
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // log to console
@@ -669,7 +669,7 @@ apiRoutes.post('/forgotPassword', function(req, res) {
 /**
  * @swagger
  * definition:
- *   GuestDuty_hostMenuSave:
+ *   GuestDuty_SaveFoodDetails:
  *     properties:
  *         userId:
  *           type: string
@@ -697,46 +697,45 @@ apiRoutes.post('/forgotPassword', function(req, res) {
  */
 /**
  * @swagger
- * /api/hostMenuSave:
+ * /api/SaveFoodDetails:
  *   post:
  *     tags:
- *       - hostMenuSave
+ *       - SaveFoodDetails
  *     description: Host Menu Save
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: GuestDuty_hostMenuSave
+ *       - name: GuestDuty_SaveFoodDetails
  *         description: Saving the host menu
  *         in: body
  *         required: true
  *         schema:
- *           $ref: '#/definitions/GuestDuty_hostMenuSave'
+ *           $ref: '#/definitions/GuestDuty_SaveFoodDetails'
  *     responses:
  *       200:
  *         description: 
  *            This Api will be used to save the Menu entered by host
  */
-apiRoutes.post('/hostMenuSave', function(req, res) {
-    if (req.body.userId || !req.body.FoodName) {
+apiRoutes.post('/SaveFoodDetails', function(req, res) {
+    if (!req.body.userID || !req.body.FoodName) {
         res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
     } else {
         var newHostMenuSave = new HostMenuSave({
-            userID: req.body.userID,
+            userID: "123456789",
             MenuDetails: req.body.MenuDetails,
-            FoodName: req.body.FoodName,
-            latitude: req.body.latitude,
-            longitude: req.body.longitude,
-            placeType: req.body.placeType,
-            foodType: req.body.foodType,
-            flavorType: req.body.flavorType,
-            noOfPlates: req.body.noOfPlates,
-            ForWhichTime: req.body.ForWhichTime,
-            ForWhichDate: req.body.ForWhichDate
+            FoodName: "Chicken 65",
+            latitude: "12.444",
+            longitude: "12.55",
+            placeType: "OFFICE",
+            foodType: "['VEG', 'NON_VEG']",
+            flavorType: "['SWEET', 'SALTY']",
+            ForWhichTime: "['BREAKFAST', 'LUNCH', 'DINNER']",
+            ForWhichDate: "2017-07-22T09:54:46.000Z"
         });
         // save the user
         newHostMenuSave.save(function(err) {
             if (err) {
-                res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+                res.json({ success: false, msg: 'Missing som fields I guess!!', data: '' });
             }
             res.json({ success: true, msg: 'Menu Saved succesfully', data: '' });
         });
@@ -829,6 +828,32 @@ apiRoutes.get('/FoodDetails', function(req, res) {
         }
 
     });
+});
+
+apiRoutes.post('/foodDetail', function(req, res) {
+
+    if (req.body.foodID) {
+        // console.log(req.params);
+        HostMenuSave.findOne({ _id: req.body.foodID }, function(err, docs) {
+            if (err) {
+                return res.send({ success: false, msg: 'food details not found', data: '' });
+            } else {
+                if (docs.userId) {
+                    UserData.findOne({ userID: req.body.userID }, function(err, user_details) {
+                        if (err) {
+                            return res.send({ success: false, msg: 'food details not found', data: '' });
+                        } else {
+                            var object_res = Object.assign(docs, user_details);
+                            res.send({ success: true, msg: 'food details found', data: object_res });
+                        }
+                    });
+                }
+
+            }
+
+        });
+    }
+
 });
 
 
