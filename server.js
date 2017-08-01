@@ -34,7 +34,7 @@ var config = require('./config/database'); // get db config file
 var User = require('./app/models/user'); // get the mongoose model
 var UserData = require('./app/models/user_data');
 var OtpUser = require('./app/models/otp_user');
-var HostMenuSave = require('./app/models/host_menu_save');
+var Save_Food_Detail = require('./app/models/save_food_detail');
 var port = 5000;
 var jwt = require('jwt-simple');
 var bcrypt = require('bcryptjs');
@@ -674,7 +674,7 @@ apiRoutes.post('/forgotPassword', function(req, res) {
  *         userId:
  *           type: string
  *         MenuDetails:
- *           type: array
+ *           type: "[{item_name:String,item_qty:Number,item_price:Number,item_unit:String}]"
  *         FoodName:
  *           type: string
  *         latitude:
@@ -684,14 +684,16 @@ apiRoutes.post('/forgotPassword', function(req, res) {
  *         placeType:
  *           type: string
  *         foodType: 
- *           type: array
- *         flavorType:
- *           type: array
+ *           type: "['VEG','NON_VEG']"
+ *         filterType:
+ *           type: "['String','String']"
  *         noOfPlates:
  *           type: number
  *         ForWhichTime:
- *           type: array
+ *           type: "['BREAKFAST','LUNCH','DINNER']"
  *         ForWhichDate:
+ *           type: string
+ *         description:
  *           type: string
  *         
  */
@@ -720,20 +722,21 @@ apiRoutes.post('/SaveFoodDetails', function(req, res) {
     if (!req.body.userID || !req.body.FoodName) {
         res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
     } else {
-        var newHostMenuSave = new HostMenuSave({
+        var newSave_Food_Detail = new Save_Food_Detail({
             userID: req.body.userID,
-            MenuDetails: req.body.MenuDetails,
+            ItemDetails: req.body.ItemDetails,
             FoodName: req.body.FoodName,
             latitude: req.body.latitude,
             longitude: req.body.longitude,
             placeType: req.body.placeType,
             foodType: req.body.foodType,
-            flavorType: req.body.flavorType,
+            filterType: req.body.filterType,
             ForWhichTime: req.body.ForWhichTime,
-            ForWhichDate: req.body.ForWhichDate
+            ForWhichDate: req.body.ForWhichDate,
+            description: req.body.description
         });
         // save the user
-        newHostMenuSave.save(function(err) {
+        newSave_Food_Detail.save(function(err) {
             if (err) {
                 res.json({ success: false, msg: 'Missing som fields I guess!!', data: '' });
             }
@@ -788,39 +791,39 @@ apiRoutes.post('/profileDetails', function(req, res) {
 
 });
 
-//FoodDetails
+//FoodList
 /**
  * @swagger
  * definition:
- *   GuestDuty_FoodDetails:
+ *   GuestDuty_FoodList:
  *     
  *  
  *       
  */
 /**
  * @swagger
- * /api/FoodDetails:
+ * /api/FoodList:
  *   get:
  *     tags:
- *       - FoodDetails
+ *       - FoodList
  *     description: Getting all food details
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: GuestDuty_FoodDetails
+ *       - name: GuestDuty_FoodList
  *         description: Food data
  *         in: body
  *         required: true
  *         schema:
- *           $ref: '#/definitions/GuestDuty_FoodDetails'
+ *           $ref: '#/definitions/GuestDuty_FoodList'
  *     responses:
  *       200:
  *         description: 
  *            This Api will be used to get the data of all the foods
  */
-apiRoutes.get('/FoodDetails', function(req, res) {
+apiRoutes.get('/FoodList', function(req, res) {
 
-    HostMenuSave.find({}, function(err, docs) {
+    Save_Food_Detail.find({}, function(err, docs) {
         if (err) {
             res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
         } else {
@@ -833,7 +836,7 @@ apiRoutes.get('/FoodDetails', function(req, res) {
 /**
  * @swagger
  * definition:
- *   GuestDuty_profileDetails:
+ *   GuestDuty_foodDetail:
  *     properties:
  *       foodID:
  *         type: string
@@ -845,7 +848,7 @@ apiRoutes.get('/FoodDetails', function(req, res) {
  *   post:
  *     tags:
  *       - foodDetail
- *     description: Getting particular user profile data
+ *     description: Getting particular food data
  *     produces:
  *       - application/json
  *     parameters:
@@ -863,7 +866,7 @@ apiRoutes.get('/FoodDetails', function(req, res) {
 apiRoutes.post('/foodDetail', function(req, res) {
 
     if (req.body.foodID) {
-        HostMenuSave.findOne({ _id: req.body.foodID }, function(err, docs) {
+        Save_Food_Detail.findOne({ _id: req.body.foodID }, function(err, docs) {
             if (err) {
                 return res.send({ success: false, msg: 'food details not found', data: '' });
             } else {
