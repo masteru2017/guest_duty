@@ -4,12 +4,7 @@ var Schema = mongoose.Schema;
 
 var HostMenuSaveSchema = new mongoose.Schema({
     userID: String,
-    MenuDetails: [{
-        item_name: String,
-        item_qty: Number,
-        item_price: Number,
-        item_unit: String
-    }],
+    MenuDetails: [{}],
     FoodName: String,
     latitude: Number,
     longitude: Number,

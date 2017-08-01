@@ -9,7 +9,7 @@ var swaggerDefinition = {
         version: '1.0.0',
         description: 'Demonstrating how to describe a RESTful API with Swagger',
     },
-    host: 'http://localhost:8000',
+    host: 'http://localhost:5000',
     basePath: '/',
 };
 
@@ -35,10 +35,10 @@ var User = require('./app/models/user'); // get the mongoose model
 var UserData = require('./app/models/user_data');
 var OtpUser = require('./app/models/otp_user');
 var HostMenuSave = require('./app/models/host_menu_save');
-var port = 8000;
+var port = 5000;
 var jwt = require('jwt-simple');
 var bcrypt = require('bcryptjs');
-
+var OrderManage = require('./app/models/order_manage');
 // get our request parameters
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -49,7 +49,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Use the passport package in our application
 app.use(passport.initialize());
 
-// demo Route (GET http://localhost:8080)
+
 app.get('/', function(req, res) {
     res.send('Hello! The API is at http://localhost:' + port + '/api');
 });
@@ -721,16 +721,16 @@ apiRoutes.post('/SaveFoodDetails', function(req, res) {
         res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
     } else {
         var newHostMenuSave = new HostMenuSave({
-            userID: "123456789",
+            userID: req.body.userID,
             MenuDetails: req.body.MenuDetails,
-            FoodName: "Chicken 65",
-            latitude: "12.444",
-            longitude: "12.55",
-            placeType: "OFFICE",
-            foodType: "['VEG', 'NON_VEG']",
-            flavorType: "['SWEET', 'SALTY']",
-            ForWhichTime: "['BREAKFAST', 'LUNCH', 'DINNER']",
-            ForWhichDate: "2017-07-22T09:54:46.000Z"
+            FoodName: req.body.FoodName,
+            latitude: req.body.latitude,
+            longitude: req.body.longitude,
+            placeType: req.body.placeType,
+            foodType: req.body.foodType,
+            flavorType: req.body.flavorType,
+            ForWhichTime: req.body.ForWhichTime,
+            ForWhichDate: req.body.ForWhichDate
         });
         // save the user
         newHostMenuSave.save(function(err) {
@@ -830,20 +830,50 @@ apiRoutes.get('/FoodDetails', function(req, res) {
     });
 });
 
+/**
+ * @swagger
+ * definition:
+ *   GuestDuty_profileDetails:
+ *     properties:
+ *       foodID:
+ *         type: string
+ *       
+ */
+/**
+ * @swagger
+ * /api/foodDetail:
+ *   post:
+ *     tags:
+ *       - foodDetail
+ *     description: Getting particular user profile data
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: GuestDuty_foodDetail
+ *         description: food individual data
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/GuestDuty_foodDetail'
+ *     responses:
+ *       200:
+ *         description: 
+ *            This Api will be used to get the food data
+ */
 apiRoutes.post('/foodDetail', function(req, res) {
 
     if (req.body.foodID) {
-        // console.log(req.params);
         HostMenuSave.findOne({ _id: req.body.foodID }, function(err, docs) {
             if (err) {
                 return res.send({ success: false, msg: 'food details not found', data: '' });
             } else {
-                if (docs.userId) {
-                    UserData.findOne({ userID: req.body.userID }, function(err, user_details) {
+                if (docs.userID) {
+                    console.log("userId", docs.userID);
+                    UserData.findOne({ userID: docs.userID }, function(err, user_details) {
                         if (err) {
                             return res.send({ success: false, msg: 'food details not found', data: '' });
                         } else {
-                            var object_res = Object.assign(docs, user_details);
+                            var object_res = docs + user_details;
                             res.send({ success: true, msg: 'food details found', data: object_res });
                         }
                     });
@@ -852,9 +882,134 @@ apiRoutes.post('/foodDetail', function(req, res) {
             }
 
         });
+    } else {
+        return res.send({ success: false, msg: 'food details not found', data: '' });
     }
 
 });
+
+//Saving the orderfood
+/**
+ * @swagger
+ * definition:
+ *   GuestDuty_orderfood:
+ *     properties:
+ *         foodID:
+ *           type: string
+ *         hostID:
+ *           type: string
+ *         eaterID:
+ *           type: string
+ *         itemDetail: 
+ *           type: "[{itemName:String, itemQty:Number, itemPrice:Number, itemUnit:String}]"
+ *         totalPrice:
+ *           type: number
+ *         status:
+ *           type: string
+ *         
+ */
+/**
+ * @swagger
+ * /api/orderfood:
+ *   post:
+ *     tags:
+ *       - orderfood
+ *     description: order Save 
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: GuestDuty_orderfood
+ *         description: Saving the order
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/GuestDuty_orderfood'
+ *     responses:
+ *       200:
+ *         description: 
+ *            This Api will be used to save the order posted by host
+ */
+
+apiRoutes.post('/orderfood', function(req, res) {
+
+    if (!req.body.foodID || !req.body.hostID || !req.body.eaterID) {
+        res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+    } else {
+        var orderBooking = new OrderManage({
+            foodID: req.body.foodID,
+            hostID: req.body.hostID,
+            eaterID: req.body.eaterID,
+            items: req.body.itemDetail,
+            totalPrice: req.body.totalPrice,
+            status: req.body.status
+        });
+        // save the user
+        orderBooking.save(function(err) {
+            if (err) {
+                res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+            }
+            res.json({ success: true, msg: 'Menu Saved succesfully', data: '' });
+        });
+    }
+
+});
+
+//orderhistory
+/**
+ * @swagger
+ * definition:
+ *   GuestDuty_orderhistory:
+ *     properties:
+ *         hostID:
+ *           type: string
+ *         eaterID:
+ *           type: string
+ * 
+ *  
+ *       
+ */
+/**
+ * @swagger
+ * /api/orderhistory:
+ *   get:
+ *     tags:
+ *       - orderhistory
+ *     description: Getting all order details by giving either hostID or eaterID
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: GuestDuty_orderhistory
+ *         description: order data
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/GuestDuty_orderhistory'
+ *     responses:
+ *       200:
+ *         description: 
+ *            This Api will be used to get the data of all the orders based on hostId or eaterId
+ */
+
+apiRoutes.post('/orderhistory', function(req, res) {
+
+    if (req.body.hostID || req.body.eaterID) {
+        OrderManage.find({ $or: [{ "hostID": req.body.hostID }, { "eaterID": req.body.eaterID }] }, function(err, docs) {
+            if (err) {
+                res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+            } else {
+
+                res.json({ success: true, msg: 'order details fetched successfull', data: docs });
+            }
+
+        });
+    } else {
+
+        res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+
+    }
+
+});
+
 
 
 // Start the server
