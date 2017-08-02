@@ -9,7 +9,7 @@ var swaggerDefinition = {
         version: '1.0.0',
         description: 'Demonstrating how to describe a RESTful API with Swagger',
     },
-    host: 'http://139.59.80.42:8001',
+    host: 'http://localhost:5000',
     basePath: '/',
 };
 
@@ -35,7 +35,7 @@ var User = require('./app/models/user'); // get the mongoose model
 var UserData = require('./app/models/user_data');
 var OtpUser = require('./app/models/otp_user');
 var Save_Food_Detail = require('./app/models/save_food_detail');
-var port = 8001;
+var port = 5000;
 var jwt = require('jwt-simple');
 var bcrypt = require('bcryptjs');
 var OrderManage = require('./app/models/order_manage');
