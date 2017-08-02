@@ -942,45 +942,47 @@ apiRoutes.post('/foodDetail', function(req, res) {
 
 //Saving the orderfood
 /**
- * @swagger
- * definition:
- *   GuestDuty_orderfood:
- *     properties:
- *         foodID:
- *           type: string
- *         hostID:
- *           type: string
- *         eaterID:
- *           type: string
- *         itemDetail: 
+* @swagger
+* definition:
+*   GuestDuty_orderfood:
+*     properties:
+*         foodID:
+*           type: string
+*         hostID:
+*           type: string
+*         eaterID:
+*           type: string
+*         itemDetail: 
  *           type: "[{itemName:String, itemQty:Number, itemPrice:Number, itemUnit:String}]"
- *         totalPrice:
- *           type: number
- *         status:
- *           type: string
- *         
+*         totalPrice:
+*           type: number
+*         status:
+*           type: string
+*          paymentID:
+*          type: string
+*         
  */
 /**
- * @swagger
- * /api/orderfood:
- *   post:
- *     tags:
- *       - orderfood
- *     description: order Save 
+* @swagger
+* /api/orderfood:
+*   post:
+*     tags:
+*       - orderfood
+*     description: order Save 
  *     produces:
- *       - application/json
- *     parameters:
- *       - name: GuestDuty_orderfood
- *         description: Saving the order
- *         in: body
- *         required: true
- *         schema:
- *           $ref: '#/definitions/GuestDuty_orderfood'
- *     responses:
- *       200:
- *         description: 
+*       - application/json
+*     parameters:
+*       - name: GuestDuty_orderfood
+*         description: Saving the order
+*         in: body
+*         required: true
+*         schema:
+*           $ref: '#/definitions/GuestDuty_orderfood'
+*     responses:
+*       200:
+*         description: 
  *            This Api will be used to save the order posted by host
- */
+*/
 
 apiRoutes.post('/orderfood', function(req, res) {
 
@@ -993,7 +995,8 @@ apiRoutes.post('/orderfood', function(req, res) {
             eaterID: req.body.eaterID,
             items: req.body.itemDetail,
             totalPrice: req.body.totalPrice,
-            status: req.body.status
+            status: req.body.status,
+            paymentID:req.body.paymentID
         });
         // save the user
         orderBooking.save(function(err) {
@@ -1005,6 +1008,7 @@ apiRoutes.post('/orderfood', function(req, res) {
     }
 
 });
+
 
 //orderhistory
 /**
