@@ -9,7 +9,7 @@ var swaggerDefinition = {
         version: '1.0.0',
         description: 'Demonstrating how to describe a RESTful API with Swagger',
     },
-    host: 'http://139.59.80.42:5000',
+    host: 'http://139.59.80.42:8001',
     basePath: '/',
 };
 
@@ -35,7 +35,7 @@ var User = require('./app/models/user'); // get the mongoose model
 var UserData = require('./app/models/user_data');
 var OtpUser = require('./app/models/otp_user');
 var Save_Food_Detail = require('./app/models/save_food_detail');
-var port = 5000;
+var port = 8001;
 var jwt = require('jwt-simple');
 var bcrypt = require('bcryptjs');
 var OrderManage = require('./app/models/order_manage');
@@ -120,11 +120,11 @@ apiRoutes.post('/signup', function(req, res) {
             } else {
                 User.findOne({
                     mobile: req.body.mobile
-                }, function(err, user_data) {
+                }, function(err, user_data_found) {
                     if (err) {
                         return res.json({ success: false, msg: "Could not find the user", data: null });
                     } else {
-                        return res.json({ success: true, msg: "signed up succesfully", data: user_data });
+                        return res.json({ success: true, msg: "signed up succesfully" });
                     }
 
 
@@ -187,7 +187,7 @@ apiRoutes.post('/authenticate', function(req, res) {
                     // if user is found and password is right create a token
                     var token = jwt.encode(user, config.secret);
                     // return the information including token as JSON
-                    res.json({ success: true, token: 'JWT ' + token, msg: 'succesfully authenticated', data: user });
+                    res.json({ success: true, token: 'JWT ' + token, msg: 'succesfully authenticated', data: { userID: user._id } });
                 } else {
                     res.send({ success: false, msg: 'Authentication failed. Wrong password.', data: null });
                 }
@@ -199,15 +199,15 @@ apiRoutes.post('/authenticate', function(req, res) {
 /**
  * @swagger
  * definition:
- *   GuestDuty_SaveUserData:
+ *   GuestDuty_saveUserData:
  *     properties:
  *       name:
  *         type: string
  *       email:
  *         type: string
- *       lat:
+ *       latitude:
  *         type: number
- *       long:
+ *       longitude:
  *         type: number
  *       landmark:
  *         type: string
@@ -227,31 +227,31 @@ apiRoutes.post('/authenticate', function(req, res) {
  */
 /**
  * @swagger
- * /api/SaveUserData:
+ * /api/saveUserData:
  *   post:
  *     tags:
- *       - SaveUserData
+ *       - saveUserData
  *     description: Saving the data of the User
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: GuestDuty_SaveUserData
+ *       - name: GuestDuty_saveUserData
  *         description: User data Object
  *         in: body
  *         required: true
  *         schema:
- *           $ref: '#/definitions/GuestDuty_SaveUserData'
+ *           $ref: '#/definitions/GuestDuty_saveUserData'
  *     responses:
  *       200:
  *         description: 
  *            This Api will be used to save the data of the user
  */
-apiRoutes.post('/SaveUserData', function(req, res) {
+apiRoutes.post('/saveUserData', function(req, res) {
     UserData.findOne({
         mobile: req.body.mobile
     }, function(err, user) {
         if (err) {
-            res.json({ success: true, msg: 'something went wrong', data: null });
+            res.json({ success: false, msg: 'something went wrong', data: null });
         }
 
         if (!user) {
@@ -267,15 +267,13 @@ apiRoutes.post('/SaveUserData', function(req, res) {
                 address: req.body.address,
                 dob: req.body.dob,
                 userID: req.body.userID
-
-
             });
             // save the user
             newUserData.save(function(err) {
                 if (err) {
                     return res.json({ success: false, msg: 'Could not save the data', data: null });
                 }
-                res.json({ success: true, msg: ' succesfully saved ', data: null });
+                res.json({ success: true, msg: ' succesfully saved ' });
             });
 
         } else {
@@ -299,7 +297,7 @@ apiRoutes.post('/SaveUserData', function(req, res) {
  * /api/userDetail:
  *   post:
  *     tags:
- *       - User
+ *       - userDetail
  *     description: Getting particular user data
  *     produces:
  *       - application/json
@@ -335,28 +333,28 @@ apiRoutes.post('/userDetail', function(req, res) {
 /**
  * @swagger
  * definition:
- *   GuestDuty_userDetailsByID:
+ *   GuestDuty_userDetailByID:
  *     properties:
  *       userID:
- *         type: String
+ *         type: string
  *       
  */
 /**
  * @swagger
- * /api/userDetailsByID:
+ * /api/userDetailByID:
  *   post:
  *     tags:
- *       - User
+ *       - userDetailByID
  *     description: Getting particular user data
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: userDetailsByID
+ *       - name: userDetailByID
  *         description: user data
  *         in: body
  *         required: true
  *         schema:
- *           $ref: '#/definitions/GuestDuty_userDetailsByID '
+ *           $ref: '#/definitions/GuestDuty_userDetailByID'
  *     responses:
  *       200:
  *         description: 
@@ -366,54 +364,9 @@ apiRoutes.post('/userDetailByID', function(req, res) {
 
     if (req.body.userID) {
         // console.log(req.params);
-        UserData.findOne({ _id: req.body.userID }, function(err, docs) {
+        UserData.findOne({ userID: req.body.userID }, function(err, docs) {
             if (err) {
                 return res.send({ success: false, msg: 'user ID not found', data: '' });
-            } else {
-                res.send({ success: true, msg: 'user found', data: docs });
-            }
-
-        });
-    }
-
-});
-/**
- * @swagger
- * definition:
- *   GuestDuty_userDetailsByID:
- *     properties:
- *       userID:
- *         type: String
- *       
- */
-/**
- * @swagger
- * /api/userDetailsByID:
- *   post:
- *     tags:
- *       - User
- *     description: Getting particular user data
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: userDetailsByID
- *         description: user data
- *         in: body
- *         required: true
- *         schema:
- *           $ref: '#/definitions/GuestDuty_userDetailsByID '
- *     responses:
- *       200:
- *         description: 
- *            This Api will be used to get the data of the user
- */
-apiRoutes.post('/userDetailByID', function(req, res) {
-
-    if (req.body.userID) {
-        // console.log(req.params);
-        UserData.findOne({ _id: req.body.userID }, function(err, docs) {
-            if (err) {
-                return res.send({ success: false, msg: 'user ID not found', data: null });
             } else {
                 res.send({ success: true, msg: 'user found', data: docs });
             }
@@ -533,7 +486,7 @@ apiRoutes.post('/userResetPassword', function(req, res) {
                                         res.send({ success: false, msg: 'something went wrong', data: null });
                                     }
                                     if (resp) {
-                                        res.send({ success: true, msg: "succesfully updated the password", data: null });
+                                        res.send({ success: true, msg: "succesfully updated the password" });
                                     }
                                 });
                             });
@@ -542,7 +495,7 @@ apiRoutes.post('/userResetPassword', function(req, res) {
 
 
                     } else {
-                        res.send({ success: false, msg: 'Something really went wrong', data: '' });
+                        res.send({ success: false, msg: 'Something really went wrong', data: null });
                     }
                 });
             }
@@ -555,7 +508,7 @@ apiRoutes.post('/userResetPassword', function(req, res) {
 /**
  * @swagger
  * definition:
- *   GuestDuty_SendOtp:
+ *   GuestDuty_sendOtp:
  *     properties:
  *         mobile:
  *           type: number
@@ -564,26 +517,26 @@ apiRoutes.post('/userResetPassword', function(req, res) {
  */
 /**
  * @swagger
- * /api/SendOtp:
+ * /api/sendOtp:
  *   post:
  *     tags:
- *       - SendOtp
- *     description: Sending the OTP
+ *       - sendOtp
+ *     description: sending the OTP
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: GuestDuty_SendOtp
- *         description: Send OTP
+ *       - name: GuestDuty_sendOtp
+ *         description: send OTP
  *         in: body
  *         required: true
  *         schema:
- *           $ref: '#/definitions/GuestDuty_SendOtp'
+ *           $ref: '#/definitions/GuestDuty_sendOtp'
  *     responses:
  *       200:
  *         description: 
- *            This Api will be used to Send the OTP
+ *            This Api will be used to send the OTP
  */
-apiRoutes.post('/SendOtp', function(req, res) {
+apiRoutes.post('/sendOtp', function(req, res) {
     if (!req.body.mobile) {
         res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
     } else {
@@ -606,7 +559,7 @@ apiRoutes.post('/SendOtp', function(req, res) {
                         return res.json({ success: false, msg: 'something is wrong', data: null });
                     }
 
-                    res.json({ success: true, msg: 'OTP sent succesfully', data: null });
+                    res.json({ success: true, msg: 'OTP sent succesfully' });
                 });
             }
         });
@@ -619,7 +572,7 @@ apiRoutes.post('/SendOtp', function(req, res) {
 /**
  * @swagger
  * definition:
- *   GuestDuty_OtpVerify:
+ *   GuestDuty_otpVerify:
  *     properties:
  *         otp:
  *           type: number
@@ -630,31 +583,31 @@ apiRoutes.post('/SendOtp', function(req, res) {
  */
 /**
  * @swagger
- * /api/OtpVerify:
+ * /api/otpVerify:
  *   post:
  *     tags:
- *       - OtpVerify
- *     description: Verifying the OTP
+ *       - otpVerify
+ *     description: Verifying the otp
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: GuestDuty_OtpVerify
- *         description: Verify OTP
+ *       - name: GuestDuty_otpVerify
+ *         description: Verify otp
  *         in: body
  *         required: true
  *         schema:
- *           $ref: '#/definitions/GuestDuty_OtpVerify'
+ *           $ref: '#/definitions/GuestDuty_otpVerify'
  *     responses:
  *       200:
  *         description: 
  *            This Api will be used to Verify the OTP
  */
-apiRoutes.post('/OtpVerify', function(req, res) {
+apiRoutes.post('/otpVerify', function(req, res) {
 
     if (!req.body.otp || !req.body.mobile) {
         res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
     } else {
-        OtpUser.find({ mobile: req.body.mobile }, function(err, user) {
+        OtpUser.findOne({ mobile: req.body.mobile }, function(err, user) {
             if (err) {
                 res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
             };
@@ -662,15 +615,15 @@ apiRoutes.post('/OtpVerify', function(req, res) {
             if (!user) {
                 res.send({ success: false, msg: 'could not find the user', data: null });
             } else {
-                OtpUser.find({ otp: req.body.otp, mobile: req.body.mobile }, function(err, user) {
+                OtpUser.findOne({ mobile: req.body.mobile }, function(err, user) {
                     if (err) {
                         return res.json({ success: false, msg: "data not found", data: null });
                     } else {
-                        UserData.find({ mobile: req.body.mobile }, function(err, user) {
+                        UserData.findOne({ mobile: req.body.mobile }, function(err, user) {
                             if (err) {
                                 return res.json({ success: false, msg: "data not found", data: null });
                             } else {
-                                res.json({ success: true, msg: "successful", data: user });
+                                res.json({ success: true, msg: "successful" });
                             }
                         });
                     }
@@ -699,7 +652,7 @@ apiRoutes.post('/OtpVerify', function(req, res) {
  * /api/forgotPassword:
  *   post:
  *     tags:
- *       - ForgotPassword
+ *       - forgotPassword
  *     description: Forgot password
  *     produces:
  *       - application/json
@@ -745,7 +698,7 @@ apiRoutes.post('/forgotPassword', function(req, res) {
                                 res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
                             }
                             if (resp) {
-                                res.send({ success: true, msg: "succesfully changed the password", data: null });
+                                res.send({ success: true, msg: "succesfully changed the password" });
                             }
                         });
                     });
@@ -760,13 +713,13 @@ apiRoutes.post('/forgotPassword', function(req, res) {
 /**
  * @swagger
  * definition:
- *   GuestDuty_SaveFoodDetails:
+ *   GuestDuty_saveFoodDetails:
  *     properties:
- *         userId:
+ *         userID:
  *           type: string
- *         MenuDetails:
+ *         itemDetails:
  *           type: "[{item_name:String,item_qty:Number,item_price:Number,item_unit:String}]"
- *         FoodName:
+ *         foodName:
  *           type: string
  *         latitude:
  *           type: number
@@ -780,9 +733,9 @@ apiRoutes.post('/forgotPassword', function(req, res) {
  *           type: "['String','String']"
  *         noOfPlates:
  *           type: number
- *         ForWhichTime:
+ *         forWhichTime:
  *           type: "['BREAKFAST','LUNCH','DINNER']"
- *         ForWhichDate:
+ *         forWhichDate:
  *           type: string
  *         description:
  *           type: string
@@ -790,40 +743,40 @@ apiRoutes.post('/forgotPassword', function(req, res) {
  */
 /**
  * @swagger
- * /api/SaveFoodDetails:
+ * /api/saveFoodDetails:
  *   post:
  *     tags:
- *       - SaveFoodDetails
+ *       - saveFoodDetails
  *     description: Host Menu Save
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: GuestDuty_SaveFoodDetails
+ *       - name: GuestDuty_saveFoodDetails
  *         description: Saving the host menu
  *         in: body
  *         required: true
  *         schema:
- *           $ref: '#/definitions/GuestDuty_SaveFoodDetails'
+ *           $ref: '#/definitions/GuestDuty_saveFoodDetails'
  *     responses:
  *       200:
  *         description: 
  *            This Api will be used to save the Menu entered by host
  */
-apiRoutes.post('/SaveFoodDetails', function(req, res) {
+apiRoutes.post('/saveFoodDetails', function(req, res) {
     if (!req.body.userID || !req.body.FoodName) {
         res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
     } else {
         var newSave_Food_Detail = new Save_Food_Detail({
             userID: req.body.userID,
-            ItemDetails: req.body.ItemDetails,
-            FoodName: req.body.FoodName,
+            itemDetails: req.body.itemDetails,
+            foodName: req.body.foodName,
             latitude: req.body.latitude,
             longitude: req.body.longitude,
             placeType: req.body.placeType,
             foodType: req.body.foodType,
             filterType: req.body.filterType,
-            ForWhichTime: req.body.ForWhichTime,
-            ForWhichDate: req.body.ForWhichDate,
+            forWhichTime: req.body.forWhichTime,
+            forWhichDate: req.body.forWhichDate,
             description: req.body.description
         });
         // save the user
@@ -831,7 +784,7 @@ apiRoutes.post('/SaveFoodDetails', function(req, res) {
             if (err) {
                 res.json({ success: false, msg: 'Missing som fields I guess!!', data: null });
             }
-            res.json({ success: true, msg: 'Menu Saved succesfully', data: null });
+            res.json({ success: true, msg: 'Menu Saved succesfully' });
         });
     }
 });
@@ -840,7 +793,7 @@ apiRoutes.post('/SaveFoodDetails', function(req, res) {
 /**
  * @swagger
  * definition:
- *   GuestDuty_profileDetails:
+ *   GuestDuty_profileDetail:
  *     properties:
  *       userID:
  *         type: string
@@ -848,26 +801,26 @@ apiRoutes.post('/SaveFoodDetails', function(req, res) {
  */
 /**
  * @swagger
- * /api/profileDetails:
+ * /api/profileDetail:
  *   post:
  *     tags:
- *       - profileDetails
+ *       - profileDetail
  *     description: Getting particular user profile data
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: GuestDuty_profileDetails
+ *       - name: GuestDuty_profileDetail
  *         description: user profile data
  *         in: body
  *         required: true
  *         schema:
- *           $ref: '#/definitions/GuestDuty_profileDetails'
+ *           $ref: '#/definitions/GuestDuty_profileDetail'
  *     responses:
  *       200:
  *         description: 
  *            This Api will be used to get the profile data of the user
  */
-apiRoutes.post('/profileDetails', function(req, res) {
+apiRoutes.post('/profileDetail', function(req, res) {
 
     if (req.body.userID) {
         UserData.findOne({ userID: req.body.userID }, function(err, docs) {
@@ -886,33 +839,33 @@ apiRoutes.post('/profileDetails', function(req, res) {
 /**
  * @swagger
  * definition:
- *   GuestDuty_FoodList:
+ *   GuestDuty_foodList:
  *     
  *  
  *       
  */
 /**
  * @swagger
- * /api/FoodList:
+ * /api/foodList:
  *   get:
  *     tags:
- *       - FoodList
+ *       - foodList
  *     description: Getting all food details
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: GuestDuty_FoodList
+ *       - name: GuestDuty_foodList
  *         description: Food data
  *         in: body
  *         required: true
  *         schema:
- *           $ref: '#/definitions/GuestDuty_FoodList'
+ *           $ref: '#/definitions/GuestDuty_foodList'
  *     responses:
  *       200:
  *         description: 
  *            This Api will be used to get the data of all the foods
  */
-apiRoutes.get('/FoodList', function(req, res) {
+apiRoutes.get('/foodList', function(req, res) {
 
     Save_Food_Detail.find({}, function(err, docs) {
         if (err) {
@@ -962,13 +915,11 @@ apiRoutes.post('/foodDetail', function(req, res) {
                 return res.send({ success: false, msg: 'food details not found', data: null });
             } else {
                 if (docs.userID) {
-                    console.log("userId", docs.userID);
                     UserData.findOne({ userID: docs.userID }, function(err, user_details) {
                         if (err) {
                             return res.send({ success: false, msg: 'food details not found', data: null });
                         } else {
-                            var object_res = docs + user_details;
-                            res.send({ success: true, msg: 'food details found', data: object_res });
+                            res.send({ success: true, msg: 'food details found', data: { food_detail: docs, user_detail: user_details } });
                         }
                     });
                 }
@@ -996,17 +947,11 @@ apiRoutes.post('/foodDetail', function(req, res) {
  *           type: string
  *         itemDetail: 
  *           type: "[{itemName:String, itemQty:Number, itemPrice:Number, itemUnit:String}]"
+ *         paymentID:
+ *           type: string        
  *         totalPrice:
  *           type: number
  *         status:
- *           type: string
- *         paymentID:
- *          type: string        
- *         totalPrice:
- *           type: number
- *          status:
- *           type: string
- *          paymentID:
  *           type: string
  *         
  */
@@ -1051,7 +996,7 @@ apiRoutes.post('/orderfood', function(req, res) {
             if (err) {
                 res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
             }
-            res.json({ success: true, msg: 'Menu Saved succesfully', data: null });
+            res.json({ success: true, msg: 'Ordered successfully' });
         });
     }
 
