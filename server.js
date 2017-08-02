@@ -288,7 +288,7 @@ apiRoutes.post('/SaveUserData', function(req, res) {
 /**
  * @swagger
  * definition:
- *   GuestDuty_userDetails:
+ *   GuestDuty_userDetail:
  *     properties:
  *       mobile:
  *         type: number
@@ -296,7 +296,7 @@ apiRoutes.post('/SaveUserData', function(req, res) {
  */
 /**
  * @swagger
- * /api/userDetails:
+ * /api/userDetail:
  *   post:
  *     tags:
  *       - User
@@ -304,12 +304,12 @@ apiRoutes.post('/SaveUserData', function(req, res) {
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: GuestDuty_UserDetails
+ *       - name: GuestDuty_UserDetail
  *         description: user data
  *         in: body
  *         required: true
  *         schema:
- *           $ref: '#/definitions/GuestDuty_userDetails'
+ *           $ref: '#/definitions/GuestDuty_userDetail'
  *     responses:
  *       200:
  *         description: 
@@ -332,51 +332,51 @@ apiRoutes.post('/userDetail', function(req, res) {
 });
 
 //Get User details
-	/**
-	* @swagger
-	* definition:
-	*   GuestDuty_userDetailsByID:
-	*     properties:
-	*       userID:
-	*         type: String
-	*       
-	 */
-	/**
-	* @swagger
-	* /api/userDetailsByID:
-	*   post:
-	*     tags:
-	*       - User
-	*     description: Getting particular user data
-	*     produces:
-	*       - application/json
-	*     parameters:
-	*       - name: userDetailsByID
-	*         description: user data
-	*         in: body
-	*         required: true
-	*         schema:
-	*           $ref: '#/definitions/GuestDuty_userDetailsByID '
-	*     responses:
-	*       200:
-	*         description: 
-	 *            This Api will be used to get the data of the user
-	*/
-	apiRoutes.post('/userDetailByID', function(req, res) {
-	
-	    if (req.body.userID) {
-	       // console.log(req.params);
-	        UserData.findOne({ _id: req.body.userID }, function(err, docs) {
-	            if (err) {
-	                return res.send({ success: false, msg: 'user ID not found', data: '' });
-	            } else {
-	                res.send({ success: true, msg: 'user found', data: docs });
-	            }
-	
-	        });
-	    }
-	
-	});
+/**
+ * @swagger
+ * definition:
+ *   GuestDuty_userDetailsByID:
+ *     properties:
+ *       userID:
+ *         type: String
+ *       
+ */
+/**
+ * @swagger
+ * /api/userDetailsByID:
+ *   post:
+ *     tags:
+ *       - User
+ *     description: Getting particular user data
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: userDetailsByID
+ *         description: user data
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/GuestDuty_userDetailsByID '
+ *     responses:
+ *       200:
+ *         description: 
+ *            This Api will be used to get the data of the user
+ */
+apiRoutes.post('/userDetailByID', function(req, res) {
+
+    if (req.body.userID) {
+        // console.log(req.params);
+        UserData.findOne({ _id: req.body.userID }, function(err, docs) {
+            if (err) {
+                return res.send({ success: false, msg: 'user ID not found', data: '' });
+            } else {
+                res.send({ success: true, msg: 'user found', data: docs });
+            }
+
+        });
+    }
+
+});
 
 
 
@@ -942,47 +942,47 @@ apiRoutes.post('/foodDetail', function(req, res) {
 
 //Saving the orderfood
 /**
-* @swagger
-* definition:
-*   GuestDuty_orderfood:
-*     properties:
-*         foodID:
-*           type: string
-*         hostID:
-*           type: string
-*         eaterID:
-*           type: string
-*         itemDetail: 
+ * @swagger
+ * definition:
+ *   GuestDuty_orderfood:
+ *     properties:
+ *         foodID:
+ *           type: string
+ *         hostID:
+ *           type: string
+ *         eaterID:
+ *           type: string
+ *         itemDetail: 
  *           type: "[{itemName:String, itemQty:Number, itemPrice:Number, itemUnit:String}]"
-*         totalPrice:
-*           type: number
-*         status:
-*           type: string
-*          paymentID:
-*          type: string
-*         
+ *         totalPrice:
+ *           type: number
+ *         status:
+ *           type: string
+ *         paymentID:
+ *          type: string
+ *         
  */
 /**
-* @swagger
-* /api/orderfood:
-*   post:
-*     tags:
-*       - orderfood
-*     description: order Save 
+ * @swagger
+ * /api/orderfood:
+ *   post:
+ *     tags:
+ *       - orderfood
+ *     description: order Save 
  *     produces:
-*       - application/json
-*     parameters:
-*       - name: GuestDuty_orderfood
-*         description: Saving the order
-*         in: body
-*         required: true
-*         schema:
-*           $ref: '#/definitions/GuestDuty_orderfood'
-*     responses:
-*       200:
-*         description: 
+ *       - application/json
+ *     parameters:
+ *       - name: GuestDuty_orderfood
+ *         description: Saving the order
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/GuestDuty_orderfood'
+ *     responses:
+ *       200:
+ *         description: 
  *            This Api will be used to save the order posted by host
-*/
+ */
 
 apiRoutes.post('/orderfood', function(req, res) {
 
@@ -996,7 +996,7 @@ apiRoutes.post('/orderfood', function(req, res) {
             items: req.body.itemDetail,
             totalPrice: req.body.totalPrice,
             status: req.body.status,
-            paymentID:req.body.paymentID
+            paymentID: req.body.paymentID
         });
         // save the user
         orderBooking.save(function(err) {
