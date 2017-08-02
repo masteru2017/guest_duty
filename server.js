@@ -9,7 +9,7 @@ var swaggerDefinition = {
         version: '1.0.0',
         description: 'Demonstrating how to describe a RESTful API with Swagger',
     },
-    host: 'http://localhost:5000',
+    host: 'http://139.59.80.42:5000',
     basePath: '/',
 };
 
@@ -107,7 +107,7 @@ var apiRoutes = express.Router();
  */
 apiRoutes.post('/signup', function(req, res) {
     if (!req.body.mobile || !req.body.password) {
-        res.json({ success: false, msg: 'mobile or password is missing', data: '' });
+        res.json({ success: false, msg: 'mobile or password is missing', data: null });
     } else {
         var newUser = new User({
             mobile: req.body.mobile,
@@ -116,13 +116,13 @@ apiRoutes.post('/signup', function(req, res) {
         // save the user
         newUser.save(function(err) {
             if (err) {
-                return res.json({ success: false, msg: 'Username already exists', data: '' });
+                return res.json({ success: false, msg: 'Username already exists', data: null });
             } else {
                 User.findOne({
                     mobile: req.body.mobile
                 }, function(err, user_data) {
                     if (err) {
-                        return res.json({ success: false, msg: "Could not find the user", data: '' });
+                        return res.json({ success: false, msg: "Could not find the user", data: null });
                     } else {
                         return res.json({ success: true, msg: "signed up succesfully", data: user_data });
                     }
@@ -175,11 +175,11 @@ apiRoutes.post('/authenticate', function(req, res) {
         mobile: req.body.mobile
     }, function(err, user) {
         if (err) {
-            res.send({ success: false, msg: 'something went wrong', data: '' });
+            res.send({ success: false, msg: 'something went wrong', data: null });
         }
 
         if (!user) {
-            res.send({ success: false, msg: 'Authentication failed. User not found.', data: '' });
+            res.send({ success: false, msg: 'Authentication failed. User not found.', data: null });
         } else {
             // check if password matches
             user.comparePassword(req.body.password, function(err, isMatch) {
@@ -189,7 +189,7 @@ apiRoutes.post('/authenticate', function(req, res) {
                     // return the information including token as JSON
                     res.json({ success: true, token: 'JWT ' + token, msg: 'succesfully authenticated', data: user });
                 } else {
-                    res.send({ success: false, msg: 'Authentication failed. Wrong password.', data: '' });
+                    res.send({ success: false, msg: 'Authentication failed. Wrong password.', data: null });
                 }
             });
         }
@@ -221,7 +221,7 @@ apiRoutes.post('/authenticate', function(req, res) {
  *         type: string
  *       address:
  *         type: string
- *       userid:
+ *       userID:
  *         type: string
  *       
  */
@@ -251,7 +251,7 @@ apiRoutes.post('/SaveUserData', function(req, res) {
         mobile: req.body.mobile
     }, function(err, user) {
         if (err) {
-            res.json({ success: true, msg: 'something went wrong', data: '' });
+            res.json({ success: true, msg: 'something went wrong', data: null });
         }
 
         if (!user) {
@@ -273,13 +273,13 @@ apiRoutes.post('/SaveUserData', function(req, res) {
             // save the user
             newUserData.save(function(err) {
                 if (err) {
-                    return res.json({ success: false, msg: 'Could not save the data', data: '' });
+                    return res.json({ success: false, msg: 'Could not save the data', data: null });
                 }
-                res.json({ success: true, msg: ' succesfully saved ', data: '' });
+                res.json({ success: true, msg: ' succesfully saved ', data: null });
             });
 
         } else {
-            res.send({ success: false, msg: 'user already exists', data: '' });
+            res.send({ success: false, msg: 'user already exists', data: null });
         }
     });
 });
@@ -321,7 +321,7 @@ apiRoutes.post('/userDetail', function(req, res) {
         // console.log(req.params);
         UserData.findOne({ mobile: req.body.mobile }, function(err, docs) {
             if (err) {
-                return res.send({ success: false, msg: 'mobile number not found', data: '' });
+                return res.send({ success: false, msg: 'mobile number not found', data: null });
             } else {
                 res.send({ success: true, msg: 'user found', data: docs });
             }
@@ -368,7 +368,7 @@ apiRoutes.post('/userDetail', function(req, res) {
 	       // console.log(req.params);
 	        UserData.findOne({ _id: req.body.userID }, function(err, docs) {
 	            if (err) {
-	                return res.send({ success: false, msg: 'user ID not found', data: '' });
+	                return res.send({ success: false, msg: 'user ID not found', data: null });
 	            } else {
 	                res.send({ success: true, msg: 'user found', data: docs });
 	            }
@@ -414,7 +414,7 @@ apiRoutes.get('/allUsers', function(req, res) {
 
     UserData.find({}, function(err, docs) {
         if (err) {
-            return res.send({ success: false, msg: 'something went wrong', data: '' });
+            return res.send({ success: false, msg: 'something went wrong', data: null });
         } else {
             res.send({ success: false, msg: 'all users', data: docs });
         }
@@ -460,38 +460,38 @@ apiRoutes.get('/allUsers', function(req, res) {
  */
 apiRoutes.post('/userResetPassword', function(req, res) {
     if (!req.body.mobile || !req.body.oldPassword || !req.body.newPassword) {
-        res.send({ success: false, msg: 'something is missing', data: '' });
+        res.send({ success: false, msg: 'something is missing', data: null });
     } else {
         User.findOne({
             mobile: req.body.mobile
         }, function(err, user) {
             if (err) {
-                res.send({ success: false, msg: 'something went wrong', data: '' });
+                res.send({ success: false, msg: 'something went wrong', data: null });
             };
 
             if (!user) {
-                res.send({ success: false, msg: 'could not find the user', data: '' });
+                res.send({ success: false, msg: 'could not find the user', data: null });
             } else {
                 // check if password matches
                 user.comparePassword(req.body.oldPassword, function(err, isMatch) {
                     if (isMatch && !err) {
                         bcrypt.genSalt(10, function(err, salt) {
                             if (err) {
-                                res.send({ success: false, msg: 'something went wrong in gen', data: '' });
+                                res.send({ success: false, msg: 'something went wrong in gen', data: null });
                             }
                             bcrypt.hash(req.body.newPassword, salt, function(err, hash) {
                                 if (err) {
-                                    res.send({ success: false, msg: 'something went wrong', data: '' });
+                                    res.send({ success: false, msg: 'something went wrong', data: null });
                                 }
                                 req.body.newPassword = hash;
                                 User.update({ mobile: req.body.mobile }, {
                                     password: req.body.newPassword
                                 }, function(err, resp) {
                                     if (err) {
-                                        res.send({ success: false, msg: 'something went wrong', data: '' });
+                                        res.send({ success: false, msg: 'something went wrong', data: null });
                                     }
                                     if (resp) {
-                                        res.send({ success: true, msg: "succesfully updated the password", data: '' });
+                                        res.send({ success: true, msg: "succesfully updated the password", data: null });
                                     }
                                 });
                             });
@@ -543,15 +543,15 @@ apiRoutes.post('/userResetPassword', function(req, res) {
  */
 apiRoutes.post('/SendOtp', function(req, res) {
     if (!req.body.mobile) {
-        res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+        res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
     } else {
         UserData.find({ mobile: req.body.mobile }, function(err, user) {
             if (err) {
-                res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+                res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
             };
 
             if (!user) {
-                res.send({ success: false, msg: 'could not find the user', data: '' });
+                res.send({ success: false, msg: 'could not find the user', data: null });
             } else {
                 var myOtp = 1234;
                 var SendUserOtp = new OtpUser({
@@ -561,10 +561,10 @@ apiRoutes.post('/SendOtp', function(req, res) {
                 // save the OTP and mobile
                 SendUserOtp.save(function(err) {
                     if (err) {
-                        return res.json({ success: false, msg: 'something is wrong', data: '' });
+                        return res.json({ success: false, msg: 'something is wrong', data: null });
                     }
 
-                    res.json({ success: true, msg: 'OTP sent succesfully', data: '' });
+                    res.json({ success: true, msg: 'OTP sent succesfully', data: null });
                 });
             }
         });
@@ -610,23 +610,23 @@ apiRoutes.post('/SendOtp', function(req, res) {
 apiRoutes.post('/OtpVerify', function(req, res) {
 
     if (!req.body.otp || !req.body.mobile) {
-        res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+        res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
     } else {
         OtpUser.find({ mobile: req.body.mobile }, function(err, user) {
             if (err) {
-                res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+                res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
             };
 
             if (!user) {
-                res.send({ success: false, msg: 'could not find the user', data: '' });
+                res.send({ success: false, msg: 'could not find the user', data: null });
             } else {
                 OtpUser.find({ otp: req.body.otp, mobile: req.body.mobile }, function(err, user) {
                     if (err) {
-                        return res.json({ success: false, msg: "data not found", data: '' });
+                        return res.json({ success: false, msg: "data not found", data: null });
                     } else {
                         UserData.find({ mobile: req.body.mobile }, function(err, user) {
                             if (err) {
-                                return res.json({ success: false, msg: "data not found", data: '' });
+                                return res.json({ success: false, msg: "data not found", data: null });
                             } else {
                                 res.json({ success: true, msg: "successful", data: user });
                             }
@@ -675,7 +675,7 @@ apiRoutes.post('/OtpVerify', function(req, res) {
  */
 apiRoutes.post('/forgotPassword', function(req, res) {
     if (!req.body.mobile || !req.body.newPassword || !req.body.confirmPassword) {
-        res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+        res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
     } else {
         User.findOne({
             mobile: req.body.mobile
@@ -683,27 +683,27 @@ apiRoutes.post('/forgotPassword', function(req, res) {
             if (err) throw err;
 
             if (!user) {
-                res.send({ success: false, msg: 'could not find the user', data: '' });
+                res.send({ success: false, msg: 'could not find the user', data: null });
             } else if (req.body.newPassword !== req.body.confirmPassword) {
-                return res.json({ success: false, msg: 'Password is not matching', data: '' });
+                return res.json({ success: false, msg: 'Password is not matching', data: null });
             } else {
                 bcrypt.genSalt(10, function(err, salt) {
                     if (err) {
-                        res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+                        res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
                     }
                     bcrypt.hash(req.body.newPassword, salt, function(err, hash) {
                         if (err) {
-                            res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+                            res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
                         }
                         req.body.newPassword = hash;
                         User.update({ mobile: req.body.mobile }, {
                             password: req.body.newPassword
                         }, function(err, resp) {
                             if (err) {
-                                res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+                                res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
                             }
                             if (resp) {
-                                res.send({ success: true, msg: "succesfully changed the password", data: '' });
+                                res.send({ success: true, msg: "succesfully changed the password", data: null });
                             }
                         });
                     });
@@ -733,7 +733,7 @@ apiRoutes.post('/forgotPassword', function(req, res) {
  *         placeType:
  *           type: string
  *         foodType: 
- *           type: "['VEG','NON_VEG']"
+ *           type: "['VEG,'NON_VEG']"
  *         filterType:
  *           type: "['String','String']"
  *         noOfPlates:
@@ -769,7 +769,7 @@ apiRoutes.post('/forgotPassword', function(req, res) {
  */
 apiRoutes.post('/SaveFoodDetails', function(req, res) {
     if (!req.body.userID || !req.body.FoodName) {
-        res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+        res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
     } else {
         var newSave_Food_Detail = new Save_Food_Detail({
             userID: req.body.userID,
@@ -787,9 +787,9 @@ apiRoutes.post('/SaveFoodDetails', function(req, res) {
         // save the user
         newSave_Food_Detail.save(function(err) {
             if (err) {
-                res.json({ success: false, msg: 'Missing som fields I guess!!', data: '' });
+                res.json({ success: false, msg: 'Missing som fields I guess!!', data: null });
             }
-            res.json({ success: true, msg: 'Menu Saved succesfully', data: '' });
+            res.json({ success: true, msg: 'Menu Saved succesfully', data: null });
         });
     }
 });
@@ -830,9 +830,9 @@ apiRoutes.post('/profileDetails', function(req, res) {
     if (req.body.userID) {
         UserData.findOne({ userID: req.body.userID }, function(err, docs) {
             if (err) {
-                return res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+                return res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
             } else {
-                res.json({ success: false, msg: 'user found', data: docs });
+                res.json({ success: true, msg: 'user found', data: docs });
             }
 
         });
@@ -874,7 +874,7 @@ apiRoutes.get('/FoodList', function(req, res) {
 
     Save_Food_Detail.find({}, function(err, docs) {
         if (err) {
-            res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+            res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
         } else {
             res.json({ success: false, msg: 'Food details', data: docs });
         }
@@ -917,13 +917,13 @@ apiRoutes.post('/foodDetail', function(req, res) {
     if (req.body.foodID) {
         Save_Food_Detail.findOne({ _id: req.body.foodID }, function(err, docs) {
             if (err) {
-                return res.send({ success: false, msg: 'food details not found', data: '' });
+                return res.send({ success: false, msg: 'food details not found', data: null });
             } else {
                 if (docs.userID) {
                     console.log("userId", docs.userID);
                     UserData.findOne({ userID: docs.userID }, function(err, user_details) {
                         if (err) {
-                            return res.send({ success: false, msg: 'food details not found', data: '' });
+                            return res.send({ success: false, msg: 'food details not found', data: null });
                         } else {
                             var object_res = docs + user_details;
                             res.send({ success: true, msg: 'food details found', data: object_res });
@@ -935,7 +935,7 @@ apiRoutes.post('/foodDetail', function(req, res) {
 
         });
     } else {
-        return res.send({ success: false, msg: 'food details not found', data: '' });
+        return res.send({ success: false, msg: 'food details not found', data: null });
     }
 
 });
@@ -958,8 +958,8 @@ apiRoutes.post('/foodDetail', function(req, res) {
 *           type: number
 *         status:
 *           type: string
-*          paymentID:
-*          type: string
+*         paymentID:
+*           type: string
 *         
  */
 /**
@@ -987,7 +987,7 @@ apiRoutes.post('/foodDetail', function(req, res) {
 apiRoutes.post('/orderfood', function(req, res) {
 
     if (!req.body.foodID || !req.body.hostID || !req.body.eaterID) {
-        res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+        res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
     } else {
         var orderBooking = new OrderManage({
             foodID: req.body.foodID,
@@ -1001,9 +1001,9 @@ apiRoutes.post('/orderfood', function(req, res) {
         // save the user
         orderBooking.save(function(err) {
             if (err) {
-                res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+                res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
             }
-            res.json({ success: true, msg: 'Menu Saved succesfully', data: '' });
+            res.json({ success: true, msg: 'Menu Saved succesfully', data: null });
         });
     }
 
@@ -1051,7 +1051,7 @@ apiRoutes.post('/orderhistory', function(req, res) {
     if (req.body.hostID || req.body.eaterID) {
         OrderManage.find({ $or: [{ "hostID": req.body.hostID }, { "eaterID": req.body.eaterID }] }, function(err, docs) {
             if (err) {
-                res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+                res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
             } else {
 
                 res.json({ success: true, msg: 'order details fetched successfull', data: docs });
@@ -1060,7 +1060,7 @@ apiRoutes.post('/orderhistory', function(req, res) {
         });
     } else {
 
-        res.json({ success: false, msg: 'Missing some fields I guess!!', data: '' });
+        res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
 
     }
 
