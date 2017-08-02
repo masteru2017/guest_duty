@@ -331,6 +331,55 @@ apiRoutes.post('/userDetail', function(req, res) {
 
 });
 
+//Get User details
+	/**
+	* @swagger
+	* definition:
+	*   GuestDuty_userDetailsByID:
+	*     properties:
+	*       userID:
+	*         type: String
+	*       
+	 */
+	/**
+	* @swagger
+	* /api/userDetailsByID:
+	*   post:
+	*     tags:
+	*       - User
+	*     description: Getting particular user data
+	*     produces:
+	*       - application/json
+	*     parameters:
+	*       - name: userDetailsByID
+	*         description: user data
+	*         in: body
+	*         required: true
+	*         schema:
+	*           $ref: '#/definitions/GuestDuty_userDetailsByID '
+	*     responses:
+	*       200:
+	*         description: 
+	 *            This Api will be used to get the data of the user
+	*/
+	apiRoutes.post('/userDetailByID', function(req, res) {
+	
+	    if (req.body.userID) {
+	       // console.log(req.params);
+	        UserData.findOne({ _id: req.body.userID }, function(err, docs) {
+	            if (err) {
+	                return res.send({ success: false, msg: 'user ID not found', data: '' });
+	            } else {
+	                res.send({ success: true, msg: 'user found', data: docs });
+	            }
+	
+	        });
+	    }
+	
+	});
+
+
+
 //Get all the user details
 /**
  * @swagger
