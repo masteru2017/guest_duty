@@ -35,7 +35,7 @@ var User = require('./app/models/user'); // get the mongoose model
 var UserData = require('./app/models/user_data');
 var OtpUser = require('./app/models/otp_user');
 var Save_Food_Detail = require('./app/models/save_food_detail');
-var port = 5000;
+var port = 8000;
 var jwt = require('jwt-simple');
 var bcrypt = require('bcryptjs');
 var OrderManage = require('./app/models/order_manage');
@@ -259,8 +259,8 @@ apiRoutes.post('/saveUserData', function(req, res) {
                 name: req.body.name,
                 mobile: req.body.mobile,
                 email: req.body.email,
-                latitude: req.body.lat,
-                longitude: req.body.long,
+                latitude: req.body.latitude,
+                longitude: req.body.longitude,
                 landmark: req.body.landmark,
                 profession: req.body.profession,
                 gender: req.body.gender,
