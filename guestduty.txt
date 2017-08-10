@@ -1,0 +1,426 @@
+1.http://localhost:8001/api/signup            [POST]
+
+Request:
+{
+  "mobile": "8951815025",
+  "password": "8951815025"
+}
+
+Response:
+{
+    "success": true,
+    "msg": "signed up succesfully",
+    "data": {
+        "userID": "5982c99e2236b54c388b24ed"
+    }
+}
+
+2.http://localhost:8001/api/authenticate       [POST]
+
+Request:
+{
+  "mobile": "8951815025",
+  "password": "8951815025"
+}
+
+Response:
+
+{
+    "success": true,
+    "token": "JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1OTgyYzk5ZTIyMzZiNTRjMzg4YjI0ZWQiLCJtb2JpbGUiOiI4OTUxODE1MDI1IiwicGFzc3dvcmQiOiIkMmEkMTAkNy96MmRuQi9hVUg2ZDJuT2hjL016ZXZTb1g2Q2hkT1ZvNi44U2NveUV6NnJEMlJLL2NFcnEiLCJfX3YiOjB9.neK43VudMSKW_HIcptwukyDYXtcoQ0a5xbuhvwJfEWE",
+    "msg": "succesfully authenticated",
+    "data": {
+        "userID": "5982c99e2236b54c388b24ed"
+    }
+}
+
+
+3.http://localhost:8001/api/saveUserData     [POST]
+
+Request:
+{
+  "name": "arjun",
+  "email": "arjunsarthi6@gmail.com",
+  "latitude": 12.098,
+  "longitude": 12.987,
+  "landmark": "near glasshouse",
+  "mobile": "8951815025",
+  "profession": "Engineer",
+  "gender": "Male",
+  "dob": "29/03/1989",
+  "address": "Blah blah blah",
+  "userID": "5982c99e2236b54c388b24ed"
+}
+
+Response:
+{
+    "success": true,
+    "msg": " succesfully saved "
+}
+
+
+4.http://localhost:8001/api/userDetail   [POST]
+
+Request:
+{
+  "mobile": "8951815025"
+}
+
+Response:
+{
+    "success": true,
+    "msg": "user found",
+    "data": {
+        "_id": "5982cc062236b54c388b24ee",
+        "updatedAt": "2017-08-03T07:08:54.000Z",
+        "createdAt": "2017-08-03T07:08:54.000Z",
+        "name": "arjun",
+        "mobile": "8951815025",
+        "email": "arjunsarthi6@gmail.com",
+        "landmark": "near glasshouse",
+        "profession": "Engineer",
+        "gender": "Male",
+        "address": "Blah blah blah",
+        "dob": "29/03/1989",
+        "userID": "5982c99e2236b54c388b24ed",
+        "__v": 0
+    }
+}
+
+5.http://localhost:8001/api/userDetailByID   [POST]
+
+Request:
+{
+  "userID": "5982c99e2236b54c388b24ed"
+}
+
+Response:
+{
+    "success": true,
+    "msg": "user found",
+    "data": {
+        "_id": "5982cc062236b54c388b24ee",
+        "updatedAt": "2017-08-03T07:08:54.000Z",
+        "createdAt": "2017-08-03T07:08:54.000Z",
+        "name": "arjun",
+        "mobile": "8951815025",
+        "email": "arjunsarthi6@gmail.com",
+        "landmark": "near glasshouse",
+        "profession": "Engineer",
+        "gender": "Male",
+        "address": "Blah blah blah",
+        "dob": "29/03/1989",
+        "userID": "5982c99e2236b54c388b24ed",
+        "__v": 0
+    }
+}
+
+6.http://localhost:8001/api/allUsers    [GET]
+
+Response:
+{
+    "success": false,
+    "msg": "all users",
+    "data": [
+        {
+            "_id": "5982cc062236b54c388b24ee",
+            "updatedAt": "2017-08-03T07:08:54.000Z",
+            "createdAt": "2017-08-03T07:08:54.000Z",
+            "name": "arjun",
+            "mobile": "8951815025",
+            "email": "arjunsarthi6@gmail.com",
+            "landmark": "near glasshouse",
+            "profession": "Engineer",
+            "gender": "Male",
+            "address": "Blah blah blah",
+            "dob": "29/03/1989",
+            "userID": "5982c99e2236b54c388b24ed",
+            "__v": 0
+        }
+    ]
+} 
+
+7.http://localhost:8001/api/userResetPassword
+
+Request:
+{
+  "mobile": "8951815025",
+  "oldPassword": "8951815025",
+  "newPassword": "7760877239"
+}
+
+Response:
+{
+    "success": true,
+    "msg": "succesfully updated the password"
+}
+
+8.http://localhost:8001/api/sendOtp
+
+Request:
+{
+  "mobile": "8951815025"
+}
+
+
+Response:
+{
+    "success": true,
+    "msg": "OTP sent succesfully"
+}
+
+
+9.http://localhost:8001/api/otpVerify
+
+Request:
+{
+  "otp": 1234,
+  "mobile": "8951815025"
+}
+
+Response:
+{
+    "success": true,
+    "msg": "successful"
+}
+
+10.http://localhost:8001/api/forgotPassword
+
+Request:
+{
+  "mobile": "8951815025",
+  "newPassword": "8951815025",
+  "confirmPassword": "8951815025"
+}
+
+Response:
+{
+    "success": true,
+    "msg": "succesfully changed the password"
+}
+
+11.http://localhost:8001/api/saveFoodDetails
+
+Request:
+{
+  "userID": "5982c99e2236b54c388b24ed",
+  "itemDetails": [{"item_name":"chapathi","item_qty":2,"item_price":20,"item_unit":"pcs"}],
+  "foodName": "chapthi and rice",
+  "latitude": 12.38,
+  "longitude": 11.23,
+  "placeType": "OFFICE",
+  "foodType": ["VEG","NON_VEG"],
+  "filterType": ["SPICY","SWEET","SALTY"],
+  "forWhichTime": ["BREAKFAST","LUNCH","DINNER"],
+  "forWhichDate": "04/08/2017",
+  "description": "very tasty food"
+}
+
+Response:
+{
+    "success": true,
+    "msg": "Menu Saved succesfully"
+}
+
+12.http://localhost:8001/api/profileDetail
+
+Request:
+{
+  "userID": "5982c99e2236b54c388b24ed"
+}
+
+Response:
+{
+    "success": true,
+    "msg": "user found",
+    "data": {
+        "_id": "5982cc062236b54c388b24ee",
+        "updatedAt": "2017-08-03T07:08:54.000Z",
+        "createdAt": "2017-08-03T07:08:54.000Z",
+        "name": "arjun",
+        "mobile": "8951815025",
+        "email": "arjunsarthi6@gmail.com",
+        "landmark": "near glasshouse",
+        "profession": "Engineer",
+        "gender": "Male",
+        "address": "Blah blah blah",
+        "dob": "29/03/1989",
+        "userID": "5982c99e2236b54c388b24ed",
+        "__v": 0
+    }
+}
+
+13.http://localhost:8001/api/foodList
+
+Request:
+GET
+
+Response:
+{
+    "success": true,
+    "msg": "Food details",
+    "data": [
+        {
+            "_id": "5982e2d52ce5332c3ee79f8a",
+            "updatedAt": "2017-08-03T08:46:13.000Z",
+            "createdAt": "2017-08-03T08:46:13.000Z",
+            "userID": "5982c99e2236b54c388b24ed",
+            "foodName": "chapthi and rice",
+            "latitude": 12.38,
+            "longitude": 11.23,
+            "placeType": "OFFICE",
+            "forWhichDate": "2017-04-07T18:30:00.000Z",
+            "description": "very tasty food",
+            "__v": 0,
+            "forWhichTime": [
+                "BREAKFAST",
+                "LUNCH",
+                "DINNER"
+            ],
+            "filterType": [
+                "SPICY",
+                "SWEET",
+                "SALTY"
+            ],
+            "foodType": [
+                "VEG",
+                "NON_VEG"
+            ],
+            "itemDetails": [
+                {
+                    "item_name": "chapathi",
+                    "item_qty": 2,
+                    "item_price": 20,
+                    "item_unit": "pcs",
+                    "_id": "5982e2d52ce5332c3ee79f8b"
+                }
+            ]
+        }
+    ]
+}
+
+14.http://localhost:8001/api/foodDetail
+
+Request:
+{
+  "foodID": "5982e2d52ce5332c3ee79f8a"
+}
+
+Response:
+{
+    "success": true,
+    "msg": "food details found",
+    "data": {
+        "food_detail": {
+            "_id": "5982e2d52ce5332c3ee79f8a",
+            "updatedAt": "2017-08-03T08:46:13.000Z",
+            "createdAt": "2017-08-03T08:46:13.000Z",
+            "userID": "5982c99e2236b54c388b24ed",
+            "foodName": "chapthi and rice",
+            "latitude": 12.38,
+            "longitude": 11.23,
+            "placeType": "OFFICE",
+            "forWhichDate": "2017-04-07T18:30:00.000Z",
+            "description": "very tasty food",
+            "__v": 0,
+            "forWhichTime": [
+                "BREAKFAST",
+                "LUNCH",
+                "DINNER"
+            ],
+            "filterType": [
+                "SPICY",
+                "SWEET",
+                "SALTY"
+            ],
+            "foodType": [
+                "VEG",
+                "NON_VEG"
+            ],
+            "itemDetails": [
+                {
+                    "item_name": "chapathi",
+                    "item_qty": 2,
+                    "item_price": 20,
+                    "item_unit": "pcs",
+                    "_id": "5982e2d52ce5332c3ee79f8b"
+                }
+            ]
+        },
+        "user_detail": {
+            "_id": "5982cc062236b54c388b24ee",
+            "updatedAt": "2017-08-03T07:08:54.000Z",
+            "createdAt": "2017-08-03T07:08:54.000Z",
+            "name": "arjun",
+            "mobile": "8951815025",
+            "email": "arjunsarthi6@gmail.com",
+            "landmark": "near glasshouse",
+            "profession": "Engineer",
+            "gender": "Male",
+            "address": "Blah blah blah",
+            "dob": "29/03/1989",
+            "userID": "5982c99e2236b54c388b24ed",
+            "__v": 0
+        }
+    }
+}
+
+15.http://localhost:8001/api/orderfood
+
+Request:
+{
+  "foodID": "5982e2d52ce5332c3ee79f8a",
+  "hostID": "5982c99e2236b54c388b24ed",
+  "eaterID": "5982c99e2236b54c388b24ed",
+  "itemDetail": [{"itemName":"idly", "itemQty":2, "itemPrice":20, "itemUnit":"pcs"}],
+  "paymentID": "12345678",
+  "totalPrice": 20,
+  "status": "served"
+}
+
+
+Response:
+{
+    "success": true,
+    "msg": "Ordered successfully"
+}
+
+16.http://localhost:8001/api/orderhistory
+
+Request:
+{
+  "hostID": "5982c99e2236b54c388b24ed",
+  "eaterID": "5982c99e2236b54c388b24ed"
+}
+
+Response:
+
+{
+    "success": true,
+    "msg": "order details fetched successfull",
+    "data": [
+        {
+            "_id": "5982e6057dc2c90c3f2c15bd",
+            "updatedAt": "2017-08-03T08:59:49.000Z",
+            "createdAt": "2017-08-03T08:59:49.000Z",
+            "foodID": "5982e2d52ce5332c3ee79f8a",
+            "hostID": "5982c99e2236b54c388b24ed",
+            "eaterID": "5982c99e2236b54c388b24ed",
+            "totalPrice": "20",
+            "status": "served",
+            "paymentID": "12345678",
+            "__v": 0,
+            "items": [
+                {
+                    "itemName": "idly",
+                    "itemQty": "2",
+                    "itemPrice": 20,
+                    "itemUnit": "pcs",
+                    "_id": "5982e6057dc2c90c3f2c15be"
+                }
+            ]
+        }
+    ]
+}
+
+

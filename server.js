@@ -36,7 +36,7 @@ var UserData = require('./app/models/user_data');
 var UserMenu = require('./app/models/user_menu');
 var OtpUser = require('./app/models/otp_user');
 var Save_Food_Detail = require('./app/models/save_food_detail');
-var port = 5000;
+var port = 8000;
 var jwt = require('jwt-simple');
 var bcrypt = require('bcryptjs');
 var OrderManage = require('./app/models/order_manage');
@@ -108,22 +108,22 @@ var apiRoutes = express.Router();
  */
 apiRoutes.post('/signup', function(req, res) {
     if (!req.body.mobile || !req.body.password) {
-        res.json({ success: false, msg: 'mobile or password is missing', data: null });
+        res.send({ success: false, msg: 'mobile or password is missing', data: null });
     } else {
         var newUser = new User({
             mobile: req.body.mobile,
             password: req.body.password
         });
         // save the user
-        newUser.save(function(err) {
+        newUser.save(function(err, user_data) {
             if (err) {
-                return res.json({ success: false, msg: 'Username already exists', data: null });
+                res.send({ success: false, msg: 'Username already exists', data: null });
             } else {
                 User.findOne({
                     mobile: req.body.mobile
                 }, function(err, user_data_found) {
                     if (err) {
-                        return res.json({ success: false, msg: "Could not find the user", data: null });
+                        res.send({ success: false, msg: "Could not find the user", data: null });
                     } else {
 			     var myOtp = 1234;
                              var SendUserOtp = new OtpUser({
@@ -203,7 +203,7 @@ apiRoutes.post('/authenticate', function(req, res) {
                     // if user is found and password is right create a token
                     var token = jwt.encode(user, config.secret);
                     // return the information including token as JSON
-                    res.json({ success: true, token: 'JWT ' + token, msg: 'succesfully authenticated', data: { userID: user._id } });
+                    res.send({ success: true, token: 'JWT ' + token, msg: 'succesfully authenticated', data: { userID: user._id } });
                 } else {
                     res.send({ success: false, msg: 'Authentication failed. Wrong password.', data: null });
                 }
@@ -289,7 +289,7 @@ apiRoutes.post('/saveUserData', function(req, res) {
                 if (err) {
                     return res.json({ success: false, msg: 'Could not save the data some error', data: null });
                 }
-                res.json({ success: true, msg: ' succesfully saved ' });
+
             });
 
         } else {
@@ -513,7 +513,7 @@ apiRoutes.post('/userResetPassword', function(req, res) {
                                 User.update({ mobile: req.body.mobile }, {
                                     password: req.body.newPassword
                                 }, function(err, resp) {
-                                    if (err) {
+                                    if (err || !resp) {
                                         res.send({ success: false, msg: 'something went wrong', data: null });
                                     }
                                     if (resp) {
@@ -637,7 +637,7 @@ apiRoutes.post('/sendOtp', function(req, res) {
 apiRoutes.post('/otpVerify', function(req, res) {
 
     if (!req.body.otp || !req.body.mobile) {
-        res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
+        res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
     } else {
         OtpUser.findOne({ mobile: req.body.mobile }, function(err, user) {
           console.log(user); 
@@ -649,14 +649,14 @@ apiRoutes.post('/otpVerify', function(req, res) {
                 res.send({ success: false, msg: 'could not find the user', data: null });
             } else {
                 OtpUser.findOne({ mobile: req.body.mobile }, function(err, user) {
-                    if (err) {
-                        return res.json({ success: false, msg: "data not found", data: null });
+                    if (err || !user) {
+                        res.send({ success: false, msg: "data not found", data: null });
                     } else {
                         User.findOne({ mobile: req.body.mobile }, function(err, user) {
                             if (err) {
                                 return res.json({ success: false, msg: "data not found", data: null });
                             } else {
-                                res.json({ success: true, msg: "successful" });
+                                res.send({ success: true, msg: "successful" });
                             }
                         });
                     }
@@ -703,7 +703,7 @@ apiRoutes.post('/otpVerify', function(req, res) {
  */
 apiRoutes.post('/forgotPassword', function(req, res) {
     if (!req.body.mobile || !req.body.newPassword || !req.body.confirmPassword) {
-        res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
+        res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
     } else {
         User.findOne({
             mobile: req.body.mobile
@@ -713,22 +713,22 @@ apiRoutes.post('/forgotPassword', function(req, res) {
             if (!user) {
                 res.send({ success: false, msg: 'could not find the user', data: null });
             } else if (req.body.newPassword !== req.body.confirmPassword) {
-                return res.json({ success: false, msg: 'Password is not matching', data: null });
+                res.send({ success: false, msg: 'Password is not matching', data: null });
             } else {
                 bcrypt.genSalt(10, function(err, salt) {
                     if (err) {
-                        res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
+                        res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
                     }
                     bcrypt.hash(req.body.newPassword, salt, function(err, hash) {
                         if (err) {
-                            res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
+                            res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
                         }
                         req.body.newPassword = hash;
                         User.update({ mobile: req.body.mobile }, {
                             password: req.body.newPassword
                         }, function(err, resp) {
-                            if (err) {
-                                res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
+                            if (err || !resp) {
+                                res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
                             }
                             if (resp) {
                                 res.send({ success: true, msg: "succesfully changed the password" });
@@ -1021,7 +1021,7 @@ apiRoutes.post('/foodDetail', function(req, res) {
 apiRoutes.post('/orderfood', function(req, res) {
 
     if (!req.body.foodID || !req.body.hostID || !req.body.eaterID) {
-        res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
+        res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
     } else {
         var orderBooking = new OrderManage({
             foodID: req.body.foodID,
@@ -1035,9 +1035,9 @@ apiRoutes.post('/orderfood', function(req, res) {
         // save the user
         orderBooking.save(function(err) {
             if (err) {
-                res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
+                res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
             }
-            res.json({ success: true, msg: 'Ordered successfully' });
+            res.send({ success: true, msg: 'Ordered successfully' });
         });
     }
 
