@@ -14,7 +14,7 @@ var OrderSchema = new mongoose.Schema({
     eaterID:String,
     items:itemDetail,
     totalPrice:String,
-    status:String,
+   orderStatus:String,
     paymentID:String
 }, { timestamps: { type: Date, default: Date.now } });
 

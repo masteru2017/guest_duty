@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 
 var SaveFoodDetailSchema = new mongoose.Schema({
     userID: String,
-    itemDetails: [{ item_name: String, item_qty: Number, item_price: Number, item_unit: String }],
+    itemDetails: [{}],
     foodName: String,
     latitude: Number,
     longitude: Number,
@@ -12,7 +12,7 @@ var SaveFoodDetailSchema = new mongoose.Schema({
     foodType: [String],
     filterType: [String],
     forWhichTime: [String],
-    forWhichDate: { type: Date },
+    forWhichDate:String,
     description: String,
 }, { timestamps: { type: Date, default: Date.now } });
 
