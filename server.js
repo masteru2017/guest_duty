@@ -1347,17 +1347,28 @@ apiRoutes.post('/saveUserMenu', function (req, res) {
     if (!req.body.userID) {
         res.json({ success: false, msg: 'you must give userID', data: null });
     } else {
-        var saveUserMenu = new UserMenu({
-            userID: req.body.userID,
-            itemDetail: req.body.itemDetail
-        });
-        // save the user
-        saveUserMenu.save(function (err, docs) {
-            if (err) {
+        UserMenu.find({userID: req.body.userID}, function(err, validateUserData) {
+            console.log(validateUserData);
+            if(err) {
                 res.json({ success: false, msg: 'some Error occured', data: null });
+            } else if(validateUserData != "") {
+               res.json({ success: false, msg: 'Already same userID present', data: null }); 
+            } else {
+                var saveUserMenu = new UserMenu({
+                    userID: req.body.userID,
+                    itemDetail: req.body.itemDetail
+                });
+                // save the user
+                saveUserMenu.save(function (err, docs) {
+                    if (err) {
+                        res.json({ success: false, msg: 'some Error occured', data: null });
+                    }
+                    res.json({ success: true, msg: 'User Menu Saved Successfully', data: docs });
+                });
             }
-            res.json({ success: true, msg: 'User Menu Saved Successfully', data: docs });
+
         });
+        
     }
 
 });
@@ -1402,15 +1413,68 @@ apiRoutes.post('/getMenuList', function (req, res) {
         UserMenu.find({ userID: req.body.userID }, function (err, docs) {
             if (err) {
                 res.json({ success: false, msg: 'some error while fetching!!', data: null });
-            } else if (docs[0].itemDetail== "") {
+            } else if (docs == "") {
+                return res.send({ success: false, msg: 'wrong user given by You', data: null });
+            }
+            else if (docs[0].itemDetail == "") {
                 res.json({ success: false, msg: 'there is no data in your menu list', data: null });
             } else {
+                console.log(docs[0].itemDetail);
                 res.json({ success: true, msg: 'Menu List data fetched', data: docs });
             }
         });
     }
 
 });
+
+
+
+
+//getAllMenuList
+/**
+ * @swagger
+ * definition:
+ *   GuestDuty_getAllMenuList:
+ *     properties:
+ *  
+ *       
+ */
+/**
+ * @swagger
+ * /api/getAllMenuList:
+ *   get:
+ *     tags:
+ *       - getAllMenuList
+ *     description: Getting  saved menu list of  all user
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: GuestDuty_getAllMenuList
+ *         description: Menu List
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/GuestDuty_getAllMenuList'
+ *     responses:
+ *       200:
+ *         description: 
+ *            This Api will be used to get the menu list of  all user
+ */
+apiRoutes.get('/getAllMenuList', function (req, res) {
+
+        UserMenu.find({}, function (err, docs) {
+            if (err) {
+                res.json({ success: false, msg: 'some error while fetching!!', data: null });
+            } else if (docs == "") {
+                res.json({ success: false, msg: 'there is no data in all menu list', data: null });
+            } else {
+                res.json({ success: true, msg: 'Menu List data fetched', data: docs });
+            }
+        });
+    
+
+});
+
 
 
 
