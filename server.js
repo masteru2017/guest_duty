@@ -51,12 +51,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 
 
-app.get('/', function (req, res) {
+app.get('/', function(req, res) {
     res.send('Hello! The API is at http://localhost:' + port + '/api');
 });
 
 // serve swagger
-app.get('/swagger.json', function (req, res) {
+app.get('/swagger.json', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
     res.send(swaggerSpec);
 });
@@ -106,7 +106,7 @@ var apiRoutes = express.Router();
  *         description: 
  *            This Api will be used to signing up an user
  */
-apiRoutes.post('/signup', function (req, res) {
+apiRoutes.post('/signup', function(req, res) {
     if (!req.body.mobile || !req.body.password) {
         res.send({ success: false, msg: 'mobile or password is missing', data: null });
     } else {
@@ -115,13 +115,13 @@ apiRoutes.post('/signup', function (req, res) {
             password: req.body.password
         });
         // save the user
-        newUser.save(function (err, user_data) {
+        newUser.save(function(err, user_data) {
             if (err) {
                 res.send({ success: false, msg: 'Username already exists', data: null });
             } else {
                 User.findOne({
                     mobile: req.body.mobile
-                }, function (err, user_data_found) {
+                }, function(err, user_data_found) {
                     if (err) {
                         res.send({ success: false, msg: "Could not find the user", data: null });
                     } else {
@@ -131,11 +131,10 @@ apiRoutes.post('/signup', function (req, res) {
                             mobile: req.body.mobile
                         });
                         // save the OTP and mobile
-                        SendUserOtp.save(function (err) {
+                        SendUserOtp.save(function(err) {
                             if (err) {
                                 res.json({ success: false, msg: 'something is wrong', data: null });
-                            }
-                            else {
+                            } else {
                                 res.json({ success: true, msg: 'OTP sent succesfully and signed up successfully', data: user_data_found });
                             }
 
@@ -186,10 +185,10 @@ app.use('/api', apiRoutes);
  *         description: 
  *            This Api will be used to logging in an user
  */
-apiRoutes.post('/authenticate', function (req, res) {
+apiRoutes.post('/authenticate', function(req, res) {
     User.findOne({
         mobile: req.body.mobile
-    }, function (err, user) {
+    }, function(err, user) {
         if (err) {
             res.send({ success: false, msg: 'something went wrong', data: null });
         }
@@ -198,7 +197,7 @@ apiRoutes.post('/authenticate', function (req, res) {
             res.send({ success: false, msg: 'Authentication failed. User not found.', data: null });
         } else {
             // check if password matches
-            user.comparePassword(req.body.password, function (err, isMatch) {
+            user.comparePassword(req.body.password, function(err, isMatch) {
                 if (isMatch && !err) {
                     // if user is found and password is right create a token
                     var token = jwt.encode(user, config.secret);
@@ -262,10 +261,10 @@ apiRoutes.post('/authenticate', function (req, res) {
  *         description: 
  *            This Api will be used to save the data of the user
  */
-apiRoutes.post('/saveUserData', function (req, res) {
+apiRoutes.post('/saveUserData', function(req, res) {
     User.findOne({
         mobile: req.body.mobile
-    }, function (err, user) {
+    }, function(err, user) {
         if (err) {
             res.json({ success: false, msg: 'something went wrong,some error', data: null });
         }
@@ -285,11 +284,10 @@ apiRoutes.post('/saveUserData', function (req, res) {
                 userID: req.body.userID
             });
             // save the user
-            newUserData.save(function (err, docs) {
+            newUserData.save(function(err, docs) {
                 if (err) {
                     return res.json({ success: false, msg: 'Could not save the data some error', data: null });
-                }
-                else {
+                } else {
                     res.json({ success: true, msg: 'user saved successfully', data: docs });
                 }
             });
@@ -331,18 +329,16 @@ apiRoutes.post('/saveUserData', function (req, res) {
  *         description: 
  *            This Api will be used to get the data of the user
  */
-apiRoutes.post('/userDetail', function (req, res) {
+apiRoutes.post('/userDetail', function(req, res) {
 
     if (req.body.mobile) {
         // console.log(req.params);
-        UserData.findOne({ mobile: req.body.mobile }, function (err, docs) {
+        UserData.findOne({ mobile: req.body.mobile }, function(err, docs) {
             if (err) {
                 res.send({ success: false, msg: 'mobile number not found', data: null });
-            }
-            else if (!docs) {
+            } else if (!docs) {
                 res.send({ success: false, msg: 'mobile number not found', data: null });
-            }
-            else {
+            } else {
                 res.send({ success: true, msg: 'user found', data: docs });
             }
 
@@ -382,11 +378,11 @@ apiRoutes.post('/userDetail', function (req, res) {
  *         description: 
  *            This Api will be used to get the data of the user
  */
-apiRoutes.post('/userDetailByID', function (req, res) {
+apiRoutes.post('/userDetailByID', function(req, res) {
 
     if (req.body.userID) {
         // console.log(req.params);
-        UserData.findOne({ userID: req.body.userID }, function (err, docs) {
+        UserData.findOne({ userID: req.body.userID }, function(err, docs) {
             if (err) {
                 res.send({ success: false, msg: 'some error here', data: '' });
             } else if (!docs) {
@@ -432,16 +428,14 @@ apiRoutes.post('/userDetailByID', function (req, res) {
  *         description: 
  *            This Api will be used to get the data of all the users
  */
-apiRoutes.get('/allUsers', function (req, res) {
+apiRoutes.get('/allUsers', function(req, res) {
 
-    UserData.find({}, function (err, docs) {
+    UserData.find({}, function(err, docs) {
         if (err) {
             res.json({ success: false, msg: 'something went wrong', data: null });
-        }
-        else if (!docs) {
+        } else if (!docs) {
             res.json({ success: false, msg: 'no user present now ', data: null });
-        }
-        else {
+        } else {
             console.log("we are in success true case");
             console.log(docs);
             res.send({ success: true, msg: 'all users data fetched', data: docs });
@@ -486,13 +480,13 @@ apiRoutes.get('/allUsers', function (req, res) {
  *         description: 
  *            This Api will be used to Reset the password of the user
  */
-apiRoutes.post('/userResetPassword', function (req, res) {
+apiRoutes.post('/userResetPassword', function(req, res) {
     if (!req.body.mobile || !req.body.oldPassword || !req.body.newPassword) {
         res.send({ success: false, msg: 'something is missing', data: null });
     } else {
         User.findOne({
             mobile: req.body.mobile
-        }, function (err, user) {
+        }, function(err, user) {
             if (err) {
                 res.send({ success: false, msg: 'something went wrong', data: null });
             };
@@ -501,20 +495,20 @@ apiRoutes.post('/userResetPassword', function (req, res) {
                 res.send({ success: false, msg: 'could not find the user', data: null });
             } else {
                 // check if password matches
-                user.comparePassword(req.body.oldPassword, function (err, isMatch) {
+                user.comparePassword(req.body.oldPassword, function(err, isMatch) {
                     if (isMatch && !err) {
-                        bcrypt.genSalt(10, function (err, salt) {
+                        bcrypt.genSalt(10, function(err, salt) {
                             if (err) {
                                 res.send({ success: false, msg: 'something went wrong in gen', data: null });
                             }
-                            bcrypt.hash(req.body.newPassword, salt, function (err, hash) {
+                            bcrypt.hash(req.body.newPassword, salt, function(err, hash) {
                                 if (err) {
                                     res.send({ success: false, msg: 'something went wrong', data: null });
                                 }
                                 req.body.newPassword = hash;
                                 User.update({ mobile: req.body.mobile }, {
                                     password: req.body.newPassword
-                                }, function (err, resp) {
+                                }, function(err, resp) {
                                     if (err || !resp) {
                                         res.send({ success: false, msg: 'something went wrong', data: null });
                                     }
@@ -569,11 +563,11 @@ apiRoutes.post('/userResetPassword', function (req, res) {
  *         description: 
  *            This Api will be used to send the OTP
  */
-apiRoutes.post('/sendOtp', function (req, res) {
+apiRoutes.post('/sendOtp', function(req, res) {
     if (!req.body.mobile) {
         res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
     } else {
-        User.findOne({ mobile: req.body.mobile }, function (err, user) {
+        User.findOne({ mobile: req.body.mobile }, function(err, user) {
             if (err) {
                 res.send({ success: false, msg: 'error in getting mobile number', data: null });
             };
@@ -587,11 +581,10 @@ apiRoutes.post('/sendOtp', function (req, res) {
                     mobile: req.body.mobile
                 });
                 // save the OTP and mobile
-                SendUserOtp.save(function (err, data) {
+                SendUserOtp.save(function(err, data) {
                     if (err || !data) {
                         res.send({ success: false, msg: 'something is wrong', data: null });
-                    }
-                    else {
+                    } else {
                         res.send({ success: true, msg: 'OTP sent succesfully' });
                     }
                 });
@@ -636,12 +629,12 @@ apiRoutes.post('/sendOtp', function (req, res) {
  *         description: 
  *            This Api will be used to Verify the OTP
  */
-apiRoutes.post('/otpVerify', function (req, res) {
+apiRoutes.post('/otpVerify', function(req, res) {
 
     if (!req.body.otp || !req.body.mobile) {
         res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
     } else {
-        OtpUser.findOne({ mobile: req.body.mobile }, function (err, user) {
+        OtpUser.findOne({ mobile: req.body.mobile }, function(err, user) {
             console.log(user);
             if (err) {
                 res.json({ success: false, msg: 'some error please check once again!!', data: null });
@@ -650,11 +643,11 @@ apiRoutes.post('/otpVerify', function (req, res) {
             if (!user) {
                 res.send({ success: false, msg: 'could not find the user', data: null });
             } else {
-                OtpUser.findOne({ mobile: req.body.mobile }, function (err, user) {
+                OtpUser.findOne({ mobile: req.body.mobile }, function(err, user) {
                     if (err || !user) {
                         res.send({ success: false, msg: "data not found", data: null });
                     } else {
-                        User.findOne({ mobile: req.body.mobile }, function (err, user) {
+                        User.findOne({ mobile: req.body.mobile }, function(err, user) {
                             if (err) {
                                 return res.json({ success: false, msg: "data not found", data: null });
                             } else {
@@ -703,13 +696,13 @@ apiRoutes.post('/otpVerify', function (req, res) {
  *         description: 
  *            This Api will be used to Set the password when forgot
  */
-apiRoutes.post('/forgotPassword', function (req, res) {
+apiRoutes.post('/forgotPassword', function(req, res) {
     if (!req.body.mobile || !req.body.newPassword || !req.body.confirmPassword) {
         res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
     } else {
         User.findOne({
             mobile: req.body.mobile
-        }, function (err, user) {
+        }, function(err, user) {
             if (err) throw err;
 
             if (!user) {
@@ -717,18 +710,18 @@ apiRoutes.post('/forgotPassword', function (req, res) {
             } else if (req.body.newPassword !== req.body.confirmPassword) {
                 res.send({ success: false, msg: 'Password is not matching', data: null });
             } else {
-                bcrypt.genSalt(10, function (err, salt) {
+                bcrypt.genSalt(10, function(err, salt) {
                     if (err) {
                         res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
                     }
-                    bcrypt.hash(req.body.newPassword, salt, function (err, hash) {
+                    bcrypt.hash(req.body.newPassword, salt, function(err, hash) {
                         if (err) {
                             res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
                         }
                         req.body.newPassword = hash;
                         User.update({ mobile: req.body.mobile }, {
                             password: req.body.newPassword
-                        }, function (err, resp) {
+                        }, function(err, resp) {
                             if (err || !resp) {
                                 res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
                             }
@@ -795,7 +788,7 @@ apiRoutes.post('/forgotPassword', function (req, res) {
  *         description: 
  *            This Api will be used to save the Menu entered by host
  */
-apiRoutes.post('/saveFoodDetails', function (req, res) {
+apiRoutes.post('/saveFoodDetails', function(req, res) {
     if (!req.body.userID || !req.body.foodName) {
         res.json({ success: false, msg: 'Missing some fields I guess!!', data: null });
     } else {
@@ -813,11 +806,10 @@ apiRoutes.post('/saveFoodDetails', function (req, res) {
             description: req.body.description
         });
         // save the user
-        newSave_Food_Detail.save(function (err) {
+        newSave_Food_Detail.save(function(err) {
             if (err) {
                 res.json({ success: false, msg: 'error is there while storing check again', data: null });
-            }
-            else {
+            } else {
                 res.json({ success: true, msg: 'Menu Saved succesfully' });
             }
         });
@@ -855,17 +847,15 @@ apiRoutes.post('/saveFoodDetails', function (req, res) {
  *         description: 
  *            This Api will be used to get the profile data of the user
  */
-apiRoutes.post('/profileDetail', function (req, res) {
+apiRoutes.post('/profileDetail', function(req, res) {
 
     if (req.body.userID) {
-        UserData.findOne({ userID: req.body.userID }, function (err, docs) {
+        UserData.findOne({ userID: req.body.userID }, function(err, docs) {
             if (err) {
                 res.json({ success: false, msg: 'some error check again!!', data: null });
             } else if (!docs) {
                 res.json({ success: false, msg: 'user not found!', data: null });
-            }
-
-            else {
+            } else {
                 res.json({ success: true, msg: 'user found', data: docs });
             }
 
@@ -904,9 +894,9 @@ apiRoutes.post('/profileDetail', function (req, res) {
  *         description: 
  *            This Api will be used to get the data of all the foods
  */
-apiRoutes.get('/foodList', function (req, res) {
+apiRoutes.get('/foodList', function(req, res) {
 
-    Save_Food_Detail.find({}, function (err, docs) {
+    Save_Food_Detail.find({}, function(err, docs) {
         if (err) {
             res.json({ success: false, msg: 'some error while fetching!!', data: null });
         } else {
@@ -946,19 +936,17 @@ apiRoutes.get('/foodList', function (req, res) {
  *         description: 
  *            This Api will be used to get the food data
  */
-apiRoutes.post('/foodDetail', function (req, res) {
+apiRoutes.post('/foodDetail', function(req, res) {
 
     if (req.body.foodID) {
-        Save_Food_Detail.findOne({ _id: req.body.foodID }, function (err, docs) {
+        Save_Food_Detail.findOne({ _id: req.body.foodID }, function(err, docs) {
             if (err) {
                 res.send({ success: false, msg: 'food details not found', data: null });
-            }
-            else if (!docs) {
+            } else if (!docs) {
                 res.send({ success: false, msg: 'food id doesnot correct', data: null });
-            }
-            else {
+            } else {
                 if (docs.userID) {
-                    UserData.findOne({ userID: docs.userID }, function (err, user_details) {
+                    UserData.findOne({ userID: docs.userID }, function(err, user_details) {
                         if (err) {
                             res.send({ success: false, msg: 'food details not found', data: null });
                         } else {
@@ -1020,7 +1008,7 @@ apiRoutes.post('/foodDetail', function (req, res) {
  *            This Api will be used to save the order posted by host
  */
 
-apiRoutes.post('/orderfood', function (req, res) {
+apiRoutes.post('/orderfood', function(req, res) {
 
     if (!req.body.foodID || !req.body.hostID || !req.body.eaterID) {
         res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
@@ -1035,7 +1023,7 @@ apiRoutes.post('/orderfood', function (req, res) {
             paymentID: req.body.paymentID
         });
         // save the user
-        orderBooking.save(function (err) {
+        orderBooking.save(function(err) {
             if (err) {
                 res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
             }
@@ -1082,10 +1070,10 @@ apiRoutes.post('/orderfood', function (req, res) {
  *            This Api will be used to get the data of all the orders based on host0Id or eaterId
  */
 
-apiRoutes.post('/orderhistory', function (req, res) {
+apiRoutes.post('/orderhistory', function(req, res) {
 
     if (req.body.hostID || req.body.eaterID) {
-        OrderManage.find({ $or: [{ "hostID": req.body.hostID }, { "eaterID": req.body.eaterID }] }, function (err, docs) {
+        OrderManage.find({ $or: [{ "hostID": req.body.hostID }, { "eaterID": req.body.eaterID }] }, function(err, docs) {
             if (err || !docs) {
                 res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
             } else {
@@ -1134,11 +1122,11 @@ apiRoutes.post('/orderhistory', function (req, res) {
  */
 
 
-apiRoutes.get('/cookList', function (req, res) {
+apiRoutes.get('/cookList', function(req, res) {
 
     var mainData = [];
-    Save_Food_Detail.find({}, { userID: 1 }, function (err, docs) {
-
+    Save_Food_Detail.find({}, { userID: 1, foodName: 1, foodType: 1, forWhichTime: 1, forWhichDate: 1 }, function(err, docs) {
+        console.log("printing docs", docs);
         if (err) {
 
             res.send({
@@ -1152,6 +1140,7 @@ apiRoutes.get('/cookList', function (req, res) {
             console.log(docs);
             const promises = [];
             var mainData = [];
+            var j = 0;
             for (var i = 0; i < docs.length; i++) {
                 promises.push(new Promise(function (resolve, reject) {
                     UserData.find({ userID: docs[i].userID }, { name: 1, email: 1, mobile: 1, userID: 1, latitude:1, longitude:1, address:1 }, function (err, cookData) {
@@ -1180,13 +1169,13 @@ apiRoutes.get('/cookList', function (req, res) {
                 }));
             }
             Promise.all(promises)
-                .then(function () {
-                    if(mainData == "") {
-                       res.send({ success: false, msg: ' no cook available here', data: null });  
+                .then(function() {
+                    if (mainData == "") {
+                        res.send({ success: false, msg: ' no cook available here', data: null });
                     } else {
                         res.send({ success: true, msg: 'data retreived successfully', data: mainData });
                     }
-                    
+
                 });
 
         }
@@ -1249,18 +1238,18 @@ apiRoutes.get('/cookList', function (req, res) {
  *         description: 
  *            This Api will be used to edit the data of the user
  */
-apiRoutes.post('/editProfileDetail', function (req, res) {
+apiRoutes.post('/editProfileDetail', function(req, res) {
 
     if (req.body.userID) {
 
-        User.findOne({ _id: req.body.userID }, function (err, docs) {
+        User.findOne({ _id: req.body.userID }, function(err, docs) {
             if (err) {
                 res.json({ success: false, msg: "some error occured try again!" });
             } else if (!docs) {
                 res.json({ success: false, msg: "No user record found!!!" });
             } else {
                 //  res.json({success:true, msg:"user found in database", data: null});
-                UserData.findOne({ userID: req.body.userID }, function (err, userDocs) {
+                UserData.findOne({ userID: req.body.userID }, function(err, userDocs) {
                     if (err) {
                         res.json({ success: false, msg: "some error occured try again!" });
                     } else if (!userDocs) {
@@ -1279,36 +1268,35 @@ apiRoutes.post('/editProfileDetail', function (req, res) {
                             userID: req.body.userID
                         });
 
-                        userDetailFill.save(function (err) {
+                        userDetailFill.save(function(err) {
                             if (err) {
                                 res.json({ success: false, msg: "some error occured while saving data try Again" });
-                            }
-                            else {
+                            } else {
                                 res.json({ success: true, msg: "saved data successfully" });
                             }
                         })
 
                     } else {
                         // here he has to update his data because he has already filled it.
-                        UserData.update({ userID: req.body.userID },
-                            {
-                                name: req.body.name || userDocs.name,
-                                email: req.body.email || userDocs.email,
-                                latitude: req.body.latitude || userDocs.latitude,
-                                longitude: req.body.longitude || userDocs.longitude,
-                                landmark: req.body.landmark || userDocs.landmark,
-                                profession: req.body.profession || userDocs.profession,
-                                gender: req.body.gender || userDocs.gender,
-                                address: req.body.address || userDocs.address, dob: req.body.dob || userDocs.dob
-                            }, function (err, updateddata) {
+                        UserData.update({ userID: req.body.userID }, {
+                            name: req.body.name || userDocs.name,
+                            email: req.body.email || userDocs.email,
+                            latitude: req.body.latitude || userDocs.latitude,
+                            longitude: req.body.longitude || userDocs.longitude,
+                            landmark: req.body.landmark || userDocs.landmark,
+                            profession: req.body.profession || userDocs.profession,
+                            gender: req.body.gender || userDocs.gender,
+                            address: req.body.address || userDocs.address,
+                            dob: req.body.dob || userDocs.dob
+                        }, function(err, updateddata) {
 
-                                if (err) {
-                                    res.json({ success: false, msg: "error in updation" });
-                                } else {
-                                    res.json({ success: true, msg: "updated data successfully" });
-                                }
+                            if (err) {
+                                res.json({ success: false, msg: "error in updation" });
+                            } else {
+                                res.json({ success: true, msg: "updated data successfully" });
+                            }
 
-                            });
+                        });
                     }
                 });
             }
@@ -1357,24 +1345,24 @@ apiRoutes.post('/editProfileDetail', function (req, res) {
 
 
 
-apiRoutes.post('/saveUserMenu', function (req, res) {
+apiRoutes.post('/saveUserMenu', function(req, res) {
 
     if (!req.body.userID) {
         res.json({ success: false, msg: 'you must give userID', data: null });
     } else {
-        UserMenu.find({userID: req.body.userID}, function(err, validateUserData) {
+        UserMenu.find({ userID: req.body.userID }, function(err, validateUserData) {
             console.log(validateUserData);
-            if(err) {
+            if (err) {
                 res.json({ success: false, msg: 'some Error occured', data: null });
-            } else if(validateUserData != "") {
-               res.json({ success: false, msg: 'Already same userID present', data: null }); 
+            } else if (validateUserData != "") {
+                res.json({ success: false, msg: 'Already same userID present', data: null });
             } else {
                 var saveUserMenu = new UserMenu({
                     userID: req.body.userID,
                     itemDetail: req.body.itemDetail
                 });
                 // save the user
-                saveUserMenu.save(function (err, docs) {
+                saveUserMenu.save(function(err, docs) {
                     if (err) {
                         res.json({ success: false, msg: 'some Error occured', data: null });
                     }
@@ -1383,7 +1371,7 @@ apiRoutes.post('/saveUserMenu', function (req, res) {
             }
 
         });
-        
+
     }
 
 });
@@ -1421,17 +1409,16 @@ apiRoutes.post('/saveUserMenu', function (req, res) {
  *         description: 
  *            This Api will be used to get the menu list of user
  */
-apiRoutes.post('/getMenuList', function (req, res) {
+apiRoutes.post('/getMenuList', function(req, res) {
     if (!req.body.userID) {
         res.json({ success: false, msg: "you must give userID", data: null });
     } else {
-        UserMenu.find({ userID: req.body.userID }, function (err, docs) {
+        UserMenu.find({ userID: req.body.userID }, function(err, docs) {
             if (err) {
                 res.json({ success: false, msg: 'some error while fetching!!', data: null });
             } else if (docs == "") {
                 return res.send({ success: false, msg: 'wrong user given by You', data: null });
-            }
-            else if (docs[0].itemDetail == "") {
+            } else if (docs[0].itemDetail == "") {
                 res.json({ success: false, msg: 'there is no data in your menu list', data: null });
             } else {
                 console.log(docs[0].itemDetail);
@@ -1475,18 +1462,18 @@ apiRoutes.post('/getMenuList', function (req, res) {
  *         description: 
  *            This Api will be used to get the menu list of  all user
  */
-apiRoutes.get('/getAllMenuList', function (req, res) {
+apiRoutes.get('/getAllMenuList', function(req, res) {
 
-        UserMenu.find({}, function (err, docs) {
-            if (err) {
-                res.json({ success: false, msg: 'some error while fetching!!', data: null });
-            } else if (docs == "") {
-                res.json({ success: false, msg: 'there is no data in all menu list', data: null });
-            } else {
-                res.json({ success: true, msg: 'Menu List data fetched', data: docs });
-            }
-        });
-    
+    UserMenu.find({}, function(err, docs) {
+        if (err) {
+            res.json({ success: false, msg: 'some error while fetching!!', data: null });
+        } else if (docs == "") {
+            res.json({ success: false, msg: 'there is no data in all menu list', data: null });
+        } else {
+            res.json({ success: true, msg: 'Menu List data fetched', data: docs });
+        }
+    });
+
 
 });
 
@@ -1523,17 +1510,17 @@ apiRoutes.get('/getAllMenuList', function (req, res) {
  *         description: 
  *            This Api will be used to edit the menu of the user
  */
-apiRoutes.post('/editUserMenu', function (req, res) {
+apiRoutes.post('/editUserMenu', function(req, res) {
     if (!req.body.userID) {
         res.json({ success: false, msg: "you must give userID", data: null });
-    } else {    
+    } else {
         User.findOne({ _id: req.body.userID }, function(err, myData) {
-            if(err) {
-              res.json({ success: false, msg: 'some error while updating!!', data: null });  
-            } else if(!myData) {
-              res.json({ success: false, msg: 'user Doesnot exist', data: null });   
+            if (err) {
+                res.json({ success: false, msg: 'some error while updating!!', data: null });
+            } else if (!myData) {
+                res.json({ success: false, msg: 'user Doesnot exist', data: null });
             } else {
-                 UserMenu.update({ userID: req.body.userID },{itemDetail: req.body.itemDetail},function (err, docs) {
+                UserMenu.update({ userID: req.body.userID }, { itemDetail: req.body.itemDetail }, function(err, docs) {
                     if (err) {
                         res.json({ success: false, msg: 'some error while updating!!', data: null });
                     } else if (!docs) {
@@ -1544,7 +1531,7 @@ apiRoutes.post('/editUserMenu', function (req, res) {
                 });
             }
         });
-       
+
     }
 
 });
