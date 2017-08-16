@@ -13,8 +13,9 @@ var UserSchema = new Schema({
     password: {
         type: String,
         required: true
-    }
-});
+    },
+    activeStatus: String
+}, { timestamps: { type: Date, default: Date.now } });
 
 UserSchema.pre('save', function(next) {
     var user = this;

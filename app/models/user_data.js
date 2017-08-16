@@ -13,7 +13,8 @@ var UserDataSchema = new mongoose.Schema({
     gender: String,
     address: String,
     dob: String,
-    userID: String
+    userID: String,
+    activeStatus: String
 }, { timestamps: { type: Date, default: Date.now } });
 
 

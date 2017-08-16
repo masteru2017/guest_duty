@@ -112,7 +112,8 @@ apiRoutes.post('/signup', function(req, res) {
     } else {
         var newUser = new User({
             mobile: req.body.mobile,
-            password: req.body.password
+            password: req.body.password,
+            activeStatus: "active"
         });
         // save the user
         newUser.save(function(err, user_data) {
@@ -128,7 +129,8 @@ apiRoutes.post('/signup', function(req, res) {
                         var myOtp = 1234;
                         var SendUserOtp = new OtpUser({
                             otp: myOtp,
-                            mobile: req.body.mobile
+                            mobile: req.body.mobile,
+                            activeStatus:"active"
                         });
                         // save the OTP and mobile
                         SendUserOtp.save(function(err) {
@@ -266,35 +268,45 @@ apiRoutes.post('/saveUserData', function(req, res) {
         mobile: req.body.mobile
     }, function(err, user) {
         if (err) {
-            res.json({ success: false, msg: 'something went wrong,some error', data: null });
-        }
 
-        if (user) {
-            var newUserData = new UserData({
-                name: req.body.name,
-                email: req.body.email,
-                mobile: req.body.mobile,
-                latitude: req.body.latitude,
-                longitude: req.body.longitude,
-                landmark: req.body.landmark,
-                profession: req.body.profession,
-                gender: req.body.gender,
-                address: req.body.address,
-                dob: req.body.dob,
-                userID: req.body.userID
-            });
-            // save the user
-            newUserData.save(function(err, docs) {
-                if (err) {
-                    return res.json({ success: false, msg: 'Could not save the data some error', data: null });
-                } else {
-                    res.json({ success: true, msg: 'user saved successfully', data: docs });
-                }
-            });
+            res.json({ success: false, msg: 'something went wrong,some error', data: null });
+
+        } else if(!user){
+
+            res.send({ success: false, msg: 'user doesnot exists', data: null });
 
         } else {
-            res.send({ success: false, msg: 'user already exists', data: null });
-        }
+             UserData.findOne({userID: req.body.userID }, function(err, uData) {
+                if(err) {
+                    res.json({ success: false, msg: 'something went wrong,some error', data: null });
+                } else if(uData) {
+                    res.json({ success: false, msg: 'User data Already Exist, kindly check once', data: null });
+                } else {
+                     var newUserData = new UserData({
+                        name: req.body.name,
+                        email: req.body.email,
+                        mobile: req.body.mobile,
+                        latitude: req.body.latitude,
+                        longitude: req.body.longitude,
+                        landmark: req.body.landmark,
+                        profession: req.body.profession,
+                        gender: req.body.gender,
+                        address: req.body.address,
+                        dob: req.body.dob,
+                        userID: req.body.userID,
+                        activeStatus: "active"
+                    }); 
+                    // save the user
+                    newUserData.save(function(err, docs) {
+                        if (err) {
+                            return res.json({ success: false, msg: 'Could not save the data some error', data: null });
+                        } else {
+                            res.json({ success: true, msg: 'user saved successfully', data: docs });
+                        }
+                    });
+                }
+             });
+         }
     });
 });
 
@@ -423,7 +435,7 @@ apiRoutes.post('/userDetailByID', function(req, res) {
  *         required: true
  *         schema:
  *           $ref: '#/definitions/GuestDuty_allUsers'
- *     responses:
+ *     responses:   
  *       200:
  *         description: 
  *            This Api will be used to get the data of all the users
@@ -578,7 +590,8 @@ apiRoutes.post('/sendOtp', function(req, res) {
                 var myOtp = 1234;
                 var SendUserOtp = new OtpUser({
                     otp: myOtp,
-                    mobile: req.body.mobile
+                    mobile: req.body.mobile,
+                    activeStatus: "active"
                 });
                 // save the OTP and mobile
                 SendUserOtp.save(function(err, data) {
@@ -745,7 +758,7 @@ apiRoutes.post('/forgotPassword', function(req, res) {
  *     properties:
  *         userID:
  *           type: string
- *         itemDetails:
+ *         itemDetail:
  *           type: "[{item_name:String,item_qty:Number,item_price:Number,item_unit:String}]"
  *         foodName:
  *           type: string
@@ -794,7 +807,7 @@ apiRoutes.post('/saveFoodDetails', function(req, res) {
     } else {
         var newSave_Food_Detail = new Save_Food_Detail({
             userID: req.body.userID,
-            itemDetails: req.body.itemDetails,
+            itemDetail: req.body.itemDetail,
             foodName: req.body.foodName,
             latitude: req.body.latitude,
             longitude: req.body.longitude,
@@ -803,7 +816,8 @@ apiRoutes.post('/saveFoodDetails', function(req, res) {
             filterType: req.body.filterType,
             forWhichTime: req.body.forWhichTime,
             forWhichDate: req.body.forWhichDate,
-            description: req.body.description
+            description: req.body.description,
+            activeStatus:"active"
         });
         // save the user
         newSave_Food_Detail.save(function(err) {
@@ -971,20 +985,17 @@ apiRoutes.post('/foodDetail', function(req, res) {
  *   GuestDuty_orderfood:
  *     properties:
  *         foodID:
- *           type: string
+ *           type: "[{foodID:string, itemDetail:[{item_name:string, item_price:Number, item_qty:Number, item_unit:string}],                                foodName:string,description: string, forWhichTime:string , forWhichDate:string, filterType:[], foodType:[],    placeType: string, latitude:Number, longitude:Number  }]"
  *         hostID:
- *           type: string
+ *           type: array
  *         eaterID:
  *           type: string
- *         itemDetail: 
- *           type: "[{itemName:String, itemQty:Number, itemPrice:Number, itemUnit:String}]"
  *         paymentID:
  *           type: string        
  *         totalPrice:
  *           type: number
  *         orderStatus:
  *           type: string
- *         
  */
 /**
  * @swagger
@@ -1010,24 +1021,29 @@ apiRoutes.post('/foodDetail', function(req, res) {
 
 apiRoutes.post('/orderfood', function(req, res) {
 
-    if (!req.body.foodID || !req.body.hostID || !req.body.eaterID) {
+    if (!req.body.foodDetail || !req.body.hostID || !req.body.eaterID) {
         res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
     } else {
         var orderBooking = new OrderManage({
-            foodID: req.body.foodID,
+            foodDetail: req.body.foodDetail,
             hostID: req.body.hostID,
             eaterID: req.body.eaterID,
-            items: req.body.itemDetail,
             totalPrice: req.body.totalPrice,
             orderStatus: req.body.orderStatus,
-            paymentID: req.body.paymentID
+            paymentID: req.body.paymentID,
+            activeStatus: "activeStatus"
         });
         // save the user
-        orderBooking.save(function(err) {
+        orderBooking.save(function(err,docs) {
             if (err) {
-                res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
+                res.send({ success: false, msg: 'some error occured!!', data: null });
+            } else if(!docs) {
+                res.send({ success: false, msg: 'insertion not occurd!!', data: null });
             }
-            res.send({ success: true, msg: 'Ordered successfully' });
+             else {
+                res.send({ success: true, msg: 'Ordered successfully' });
+            }
+            
         });
     }
 
@@ -1040,9 +1056,7 @@ apiRoutes.post('/orderfood', function(req, res) {
  * definition:
  *   GuestDuty_orderhistory:
  *     properties:
- *         hostID:
- *           type: string
- *         eaterID:
+ *         userID:
  *           type: string
  * 
  *  
@@ -1072,8 +1086,8 @@ apiRoutes.post('/orderfood', function(req, res) {
 
 apiRoutes.post('/orderhistory', function(req, res) {
 
-    if (req.body.hostID || req.body.eaterID) {
-        OrderManage.find({ $or: [{ "hostID": req.body.hostID }, { "eaterID": req.body.eaterID }] }, function(err, docs) {
+    if (req.body.userID) {
+        OrderManage.find({ $or: [{ "hostID": req.body.userID }, { "eaterID": req.body.userID }] }, function(err, docs) {
             if (err || !docs) {
                 res.send({ success: false, msg: 'Missing some fields I guess!!', data: null });
             } else {
@@ -1126,7 +1140,7 @@ apiRoutes.get('/cookList', function(req, res) {
 
     var mainData = [];
     Save_Food_Detail.find({}, { userID: 1, foodName: 1, foodType: 1, forWhichTime: 1, forWhichDate: 1 }, function(err, docs) {
-        console.log("printing docs", docs);
+        //console.log("printing docs", docs);
         if (err) {
 
             res.send({
@@ -1137,25 +1151,28 @@ apiRoutes.get('/cookList', function(req, res) {
         } else if (!docs) {
             res.send({ success: false, msg: ' data not available in this time', data: null });
         } else {
-            console.log(docs);
+            console.log("food detail",docs);
             const promises = [];
             var mainData = [];
             var j = 0;
             for (var i = 0; i < docs.length; i++) {
+                console.log("inside loop");
                 promises.push(new Promise(function (resolve, reject) {
                     UserData.find({ userID: docs[i].userID }, { name: 1, email: 1, mobile: 1, userID: 1, latitude:1, longitude:1, address:1 }, function (err, cookData) {
                         if (err) {
                             return reject(err);
                         } 
                         else {
-                            console.log(cookData);
+                           // console.log("cookdata",cookData);
+                            console.log("documnet",i);
                             var p = new Promise(function(resolve, reject) {
                                 Save_Food_Detail.find({userID: docs[i].userID},{},function(err, foodData) {
+                                    console.log("reaching here ---",foodData);
                                     if(err) {
                                         return reject(err);
                                     }
                                     else {
-                                       console.log(foodData);
+                                       console.log("fooddata",foodData);
                                        //cookData[0].push(foodData[0]);
                                        mainData.push(cookData[0]);
                                        return resolve(cookData); 
@@ -1265,7 +1282,8 @@ apiRoutes.post('/editProfileDetail', function(req, res) {
                             gender: req.body.gender || null,
                             address: req.body.address || null,
                             dob: req.body.dob || null,
-                            userID: req.body.userID
+                            userID: req.body.userID,
+                            activeStatus: "active"
                         });
 
                         userDetailFill.save(function(err) {
@@ -1287,7 +1305,8 @@ apiRoutes.post('/editProfileDetail', function(req, res) {
                             profession: req.body.profession || userDocs.profession,
                             gender: req.body.gender || userDocs.gender,
                             address: req.body.address || userDocs.address,
-                            dob: req.body.dob || userDocs.dob
+                            dob: req.body.dob || userDocs.dob,
+                            activeStatus: "active"
                         }, function(err, updateddata) {
 
                             if (err) {
@@ -1307,75 +1326,6 @@ apiRoutes.post('/editProfileDetail', function(req, res) {
         res.json({ success: false, msg: "you must provide userID !!!!" });
     }
 });
-
-
-//Saving the User menu
-/**
- * @swagger
- * definition:
- *   GuestDuty_saveUserMenu:
- *     properties:
- *         userID:
- *           type: string
- *         itemDetails:
- *           type: "[{item_name:string,item_qty:Number,item_price:Number,item_unit:string}]"
- *         
- */
-/**
- * @swagger
- * /api/saveUserMenu:
- *   post:
- *     tags:
- *       - saveUserMenu
- *     description: user Menu Save
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: GuestDuty_saveUserMenu
- *         description: Saving the user menu
- *         in: body
- *         required: true
- *         schema:
- *           $ref: '#/definitions/GuestDuty_saveUserMenu'
- *     responses:
- *       200:
- *         description: 
- *            This Api will be used to save the Menu entered by user
- */
-
-
-
-apiRoutes.post('/saveUserMenu', function(req, res) {
-
-    if (!req.body.userID) {
-        res.json({ success: false, msg: 'you must give userID', data: null });
-    } else {
-        UserMenu.find({ userID: req.body.userID }, function(err, validateUserData) {
-            console.log(validateUserData);
-            if (err) {
-                res.json({ success: false, msg: 'some Error occured', data: null });
-            } else if (validateUserData != "") {
-                res.json({ success: false, msg: 'Already same userID present', data: null });
-            } else {
-                var saveUserMenu = new UserMenu({
-                    userID: req.body.userID,
-                    itemDetail: req.body.itemDetail
-                });
-                // save the user
-                saveUserMenu.save(function(err, docs) {
-                    if (err) {
-                        res.json({ success: false, msg: 'some Error occured', data: null });
-                    }
-                    res.json({ success: true, msg: 'User Menu Saved Successfully', data: docs });
-                });
-            }
-
-        });
-
-    }
-
-});
-
 
 //getMenuList
 /**
@@ -1413,7 +1363,7 @@ apiRoutes.post('/getMenuList', function(req, res) {
     if (!req.body.userID) {
         res.json({ success: false, msg: "you must give userID", data: null });
     } else {
-        UserMenu.find({ userID: req.body.userID }, function(err, docs) {
+        Save_Food_Detail.find({ userID: req.body.userID }, function(err, docs) {
             if (err) {
                 res.json({ success: false, msg: 'some error while fetching!!', data: null });
             } else if (docs == "") {
@@ -1421,7 +1371,7 @@ apiRoutes.post('/getMenuList', function(req, res) {
             } else if (docs[0].itemDetail == "") {
                 res.json({ success: false, msg: 'there is no data in your menu list', data: null });
             } else {
-                console.log(docs[0].itemDetail);
+                //console.log(docs[0].itemDetail);
                 res.json({ success: true, msg: 'Menu List data fetched', data: docs });
             }
         });
@@ -1430,62 +1380,16 @@ apiRoutes.post('/getMenuList', function(req, res) {
 });
 
 
-
-
-//getAllMenuList
-/**
- * @swagger
- * definition:
- *   GuestDuty_getAllMenuList:
- *     properties:
- *  
- *       
- */
-/**
- * @swagger
- * /api/getAllMenuList:
- *   get:
- *     tags:
- *       - getAllMenuList
- *     description: Getting  saved menu list of  all user
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: GuestDuty_getAllMenuList
- *         description: Menu List
- *         in: body
- *         required: true
- *         schema:
- *           $ref: '#/definitions/GuestDuty_getAllMenuList'
- *     responses:
- *       200:
- *         description: 
- *            This Api will be used to get the menu list of  all user
- */
-apiRoutes.get('/getAllMenuList', function(req, res) {
-
-    UserMenu.find({}, function(err, docs) {
-        if (err) {
-            res.json({ success: false, msg: 'some error while fetching!!', data: null });
-        } else if (docs == "") {
-            res.json({ success: false, msg: 'there is no data in all menu list', data: null });
-        } else {
-            res.json({ success: true, msg: 'Menu List data fetched', data: docs });
-        }
-    });
-
-
-});
-
-
-
-
 /**
  * @swagger
  * definition:
  *   GuestDuty_editUserMenu:
  *     properties:
  *       userID:
+ *         type: string
+ *       foodID:
+ *         type: string
+ *       forWhichTime:
  *         type: string
  *       
  */
@@ -1511,8 +1415,9 @@ apiRoutes.get('/getAllMenuList', function(req, res) {
  *            This Api will be used to edit the menu of the user
  */
 apiRoutes.post('/editUserMenu', function(req, res) {
-    if (!req.body.userID) {
-        res.json({ success: false, msg: "you must give userID", data: null });
+    console.log("edit user menu ---------------------------------");
+    if (!req.body.userID && !req.body.foodID && !req.body.forWhichTime && !req.body.forWhichDate) {
+        res.json({ success: false, msg: "you must give userID , foodID & itemDetail & date and Time", data: null });
     } else {
         User.findOne({ _id: req.body.userID }, function(err, myData) {
             if (err) {
@@ -1520,19 +1425,44 @@ apiRoutes.post('/editUserMenu', function(req, res) {
             } else if (!myData) {
                 res.json({ success: false, msg: 'user Doesnot exist', data: null });
             } else {
-                UserMenu.update({ userID: req.body.userID }, { itemDetail: req.body.itemDetail }, function(err, docs) {
-                    if (err) {
-                        res.json({ success: false, msg: 'some error while updating!!', data: null });
-                    } else if (!docs) {
-                        res.json({ success: false, msg: 'not updated this row,updation failed !!!', data: null });
-                    } else {
-                        res.json({ success: true, msg: 'User Menu data Updated', data: docs });
-                    }
-                });
+
+                    Save_Food_Detail.findOne({_id:req.body.foodID}, function(err, myValidFood) {
+                        if(err) {
+                            res.json({ success: false, msg: 'some error while updating!!', data: null });
+                        } else if(!myValidFood) {
+                            res.json({ success: false, msg: 'food ID Doesnot exist', data: null });
+                        } else {
+                                console.log(myValidFood);
+                                Save_Food_Detail.update({ _id: req.body.foodID },
+                                { 
+                                    itemDetail: req.body.itemDetail || myValidFood.itemDetail,
+                                    forWhichTime: req.body.forWhichTime,
+                                    forWhichDate: req.body.forWhichDate,
+                                    placeType: req.body.placeType || myValidFood.placeType,
+                                    foodType:  req.body.foodType || myValidFood.foodType,
+                                    filterType: req.body.filterType || myValidFood.filterType,
+                                    description: req.body.description || myValidFood.description,
+                                    latitude: req.body.latitude || myValidFood.latitude,
+                                    longitude: req.body.longitude || myValidFood.longitude
+
+                                }, function(err, docs) {
+                                if (err) {
+                                    res.json({ success: false, msg: 'some error while updating!!', data: null });
+                                } else if (!docs) {
+                                    res.json({ success: false, msg: 'not updated this row,updation failed !!!', data: null });
+                                } else {
+                                    console.log("reaching here ----");
+                                    res.json({ success: true, msg: 'User Menu data Updated', data: docs });
+                                }
+                            });
+                        }
+                    });
+
             }
         });
 
-    }
+    }      
+            
 
 });
 
