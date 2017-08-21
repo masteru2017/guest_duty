@@ -1140,7 +1140,7 @@ apiRoutes.get('/cookList', function(req, res) {
 
     var mainData = [];
     Save_Food_Detail.find({}, { userID: 1, foodName: 1, foodType: 1, forWhichTime: 1, forWhichDate: 1 }, function(err, docs) {
-        //console.log("printing docs", docs);
+        console.log("printing docs", docs);
         if (err) {
 
             res.send({
@@ -1149,39 +1149,28 @@ apiRoutes.get('/cookList', function(req, res) {
                 data: null
             });
         } else if (!docs) {
+
             res.send({ success: false, msg: ' data not available in this time', data: null });
         } else {
-            console.log("food detail",docs);
+
             const promises = [];
             var mainData = [];
             var j = 0;
             for (var i = 0; i < docs.length; i++) {
-                console.log("inside loop");
-                promises.push(new Promise(function (resolve, reject) {
-                    UserData.find({ userID: docs[i].userID }, { name: 1, email: 1, mobile: 1, userID: 1, latitude:1, longitude:1, address:1 }, function (err, cookData) {
+                promises.push(new Promise(function(resolve, reject) {
+                    UserData.find({ userID: docs[i].userID }, { name: 1, email: 1, mobile: 1, userID: 1, latitude: 1, longitude: 1, address: 1 }, function(err, cookdata) {
                         if (err) {
                             return reject(err);
-                        } 
-                        else {
-                           // console.log("cookdata",cookData);
-                            console.log("documnet",i);
-                            var p = new Promise(function(resolve, reject) {
-                                Save_Food_Detail.find({userID: docs[i].userID},{},function(err, foodData) {
-                                    console.log("reaching here ---",foodData);
-                                    if(err) {
-                                        return reject(err);
-                                    }
-                                    else {
-                                       console.log("fooddata",foodData);
-                                       //cookData[0].push(foodData[0]);
-                                       mainData.push(cookData[0]);
-                                       return resolve(cookData); 
-                                    }
-                                }); 
-                            });
-                            
                         }
-                        return resolve(cookData);
+                        mainData.push({
+                            "userinfo": cookdata[0],
+                            "foodName": docs[j].foodName,
+                            "foodType": docs[j].foodType,
+                            "forWhichTime": docs[j].forWhichTime,
+                            "forWhichDate": docs[j].forWhichDate
+                        });
+                        j++;
+                        return resolve(cookdata);
                     });
                 }));
             }
