@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 
 var SaveFoodDetailSchema = new mongoose.Schema({
     userID: String,
-    itemDetail: [{}],
+    itemDetail: [{item_name:String,item_qty:Number,item_price:Number,item_unit:String}],
     foodName: String,
     latitude: Number,
     longitude: Number,
