@@ -1,7 +1,7 @@
 {
-  "name": "authenticate",
+  "name": "guest_duty",
   "version": "1.0.0",
-  "description": "",
+  "description": "POC",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -19,9 +19,17 @@
     "passport-jwt": "^1.2.1",
     "swagger-jsdoc": "^1.3.0"
   },
-  "author": "",
+  "author": "yugagrawal95 <yugagrawal95@gmail.com> (http://www.itjunkies.in)",
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^1.11.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masteru2017/guest_duty.git"
+  },
+  "bugs": {
+    "url": "https://github.com/masteru2017/guest_duty/issues"
+  },
+  "homepage": "https://github.com/masteru2017/guest_duty#readme"
 }
